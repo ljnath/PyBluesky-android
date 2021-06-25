@@ -202,9 +202,9 @@ def play():
     selected_menu_index = 0
 
     active_sprite = NameInputText()
+    hint_sprite = get_hint_sprite("Swipe your finger to know more")      # creating game hint message
     
-    if game_env.dynamic.player_name != 'player1':
-        hint_sprite = get_hint_sprite("Swipe your finger to know more")      # creating game hint message
+    if game_env.dynamic.player_name != 'player1':    
         game_env.dynamic.all_sprites.add(hint_sprite)
         active_sprite = swipe_navigated_menus[Screen.GAME_MENU]
         selected_menu_index = 0
