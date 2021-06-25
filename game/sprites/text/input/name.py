@@ -12,8 +12,8 @@ class NameInputText(Text):
     def __init__(self):
         Text.__init__(self, size=32)                                                    # initilizing parent class with default text color as red
         game_env = GameEnvironment()
-        self.__header = Text(game_env, "=== ENTER YOUR NAME ===", 36)
-        self.__footer = Text(game_env, "===============================", 36)
+        self.__header = Text("=== ENTER YOUR NAME ===", 36)
+        self.__footer = Text("===============================", 36)
         self.__player_name = ''                                                         # default player name
         self.render(self.__player_name)
 
