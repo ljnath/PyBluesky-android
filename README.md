@@ -11,6 +11,9 @@ Website : https://www.ljnath.com
 [![Download PyBluesky](https://img.shields.io/sourceforge/dt/ljnath.svg)](https://sourceforge.net/projects/ljnath/files/latest/download)
 [![GitHub license](https://img.shields.io/github/license/ljnath/PyBluesky)](https://github.com/ljnath/PyBluesky/blob/master/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/ljnath/PyBluesky)](https://github.com/ljnath/PyBluesky/stargazers)
+[![LGTM grade](https://img.shields.io/lgtm/grade/python/github/ljnath/PyBluesky-android)](https://lgtm.com/projects/g/ljnath/PyBluesky-android/)
+[![LGTM alerts](https://img.shields.io/lgtm/alerts/github/ljnath/PyBluesky-android)](https://lgtm.com/projects/g/ljnath/PyBluesky-android/)
+
 
 [![Download PyBluesky](https://sourceforge.net/sflogo.php?type=13&group_id=3215162)](https://sourceforge.net/p/ljnath/)  
 
