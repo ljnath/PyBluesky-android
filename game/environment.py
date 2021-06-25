@@ -28,8 +28,6 @@ class GameEnvironment(metaclass=Singleton):
         self.__static_data = StaticData()
         self.__dynamic_data = DynamicData()
 
-        os.makedirs(self.__static_data.external_storage_app_directory, exist_ok=True)
-
     def get_random_point_on_right(self):
         pos_x = random.randint(self.__static_data.screen_width + 20, self.__static_data.screen_width + 100)     # generating random x position
         pos_y = random.randint(0, self.__static_data.screen_height)                                             # generating random y position

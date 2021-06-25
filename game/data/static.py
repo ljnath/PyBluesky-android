@@ -1,5 +1,5 @@
 from pygame import display
-from android.storage import app_storage_path, primary_external_storage_path
+from android.storage import app_storage_path
 
 
 class StaticData():
