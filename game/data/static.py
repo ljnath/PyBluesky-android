@@ -21,11 +21,6 @@ class StaticData():
         return f'{app_storage_path()}/app'
 
     @property
-    def external_storage_app_directory(self):
-        # return f'{primary_external_storage_path()}/PyBluesky'
-        return self.android_app_directory
-
-    @property
     def images_asset_directory(self):
         return f'{self.android_app_directory}/assets/images'
 
@@ -43,15 +38,15 @@ class StaticData():
 
     @property
     def game_log_file(self):
-        return f'{self.external_storage_app_directory}/game.log'
+        return f'{self.android_app_directory}/game.log'
 
     @property
     def leaders_file(self):
-        return f'{self.external_storage_app_directory}/leaders.dat'
+        return f'{self.android_app_directory}/leaders.dat'
 
     @property
     def offline_score_file(self):
-        return f'{self.external_storage_app_directory}/offline.dat'
+        return f'{self.android_app_directory}/offline.dat'
 
     @property
     def screen_width(self):

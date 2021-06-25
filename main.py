@@ -104,23 +104,6 @@ def notify_user_of_update() -> None:
         except Exception:
             pass
 
-
-def request_android_permissions() -> None:
-    """
-    Method to request android system for permission
-    """
-    max_retry = 3
-    while not check_permission('android.permission.WRITE_EXTERNAL_STORAGE') or max_retry > 0:
-        max_retry -= 1
-        request_permissions([
-            Permission.WRITE_EXTERNAL_STORAGE
-        ])
-
-    print(f"VIBRATE permission = {check_permission('android.permission.VIBRATE')}")
-    print(f"INTERNET permission = {check_permission('android.permission.INTERNET')}")
-    print(f"WRITE_EXTERNAL_STORAGE permission = {check_permission('android.permission.WRITE_EXTERNAL_STORAGE')}")
-
-
 def get_hint_sprite(hint_message: str) -> None:
     """
     Method to create hint text
@@ -463,7 +446,9 @@ def play():
 
 if __name__ == '__main__':
     # handle android permission
-    request_android_permissions()
+    print(f"VIBRATE permission = {check_permission('android.permission.VIBRATE')}")
+    print(f"INTERNET permission = {check_permission('android.permission.INTERNET')}")
+    print(f"WRITE_EXTERNAL_STORAGE permission = {check_permission('android.permission.WRITE_EXTERNAL_STORAGE')}")
 
     # hide loading screen as the game has been loaded
     loadingscreen.hide_loading_screen()
