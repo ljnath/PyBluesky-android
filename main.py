@@ -36,8 +36,7 @@ import webbrowser
 
 import pygame
 from android import loadingscreen
-from android.permissions import (Permission, check_permission,
-                                 request_permissions)
+from android.permissions import check_permission
 from plyer import accelerometer, orientation, vibrator
 
 from game.data.enums import Screen, StartChoice
@@ -104,6 +103,7 @@ def notify_user_of_update() -> None:
         except Exception:
             pass
 
+
 def get_hint_sprite(hint_message: str) -> None:
     """
     Method to create hint text
@@ -143,17 +143,14 @@ def play():
     gameclock = pygame.time.Clock()                                                     # setting up game clock to maintain constant fps
     check_update()
 
-    ADD_MISSILE = pygame.USEREVENT + 1                                                  # creating custom event to automatically add missiles in the screen
-    pygame.time.set_timer(ADD_MISSILE, int(1000 / game_env.static.missile_per_sec))     # setting event to auto-trigger every 500ms; 2 missiles will be created every second
-
-    ADD_CLOUD = pygame.USEREVENT + 2                                                    # creating custom event to automatically add cloud in the screen
+    ADD_CLOUD = pygame.USEREVENT + 1                                                    # creating custom event to automatically add cloud in the screen
     pygame.time.set_timer(ADD_CLOUD, int(1000 / game_env.static.cloud_per_sec))         # setting event to auto-trigger every 1s; 1 cloud will be created every second
 
-    ADD_SAM_LAUNCHER = pygame.USEREVENT + 3
-    pygame.time.set_timer(ADD_SAM_LAUNCHER, 5000)                                       # setting event to auto-trigger every 5s; 1 level can have 4 sam launcher
+    ADD_MISSILE = pygame.USEREVENT + 2                                                  # creating custom event to automatically add missiles in the screen
+    pygame.time.set_timer(ADD_MISSILE, int(1000 / game_env.static.missile_per_sec))     # setting event to auto-trigger every 500ms; 2 missiles will be created every second
 
-    RESET_SWIPE = pygame.USEREVENT + 4
-    pygame.time.set_timer(RESET_SWIPE, 1000)                                            # setting event to auto-trigger sec; user can swipe once per second
+    ADD_SAM_LAUNCHER = pygame.USEREVENT + 3                                             # creating custom event to automatically add SAM-LAUNCHER in the screen
+    pygame.time.set_timer(ADD_SAM_LAUNCHER, 5000)                                       # setting event to auto-trigger every 5s; 1 level can have 4 sam launcher
 
     running = True                                                                      # game running variable
     gameover = False                                                                    # no gameover by default
@@ -162,6 +159,16 @@ def play():
     star_shown = False
     user_has_swipped = False
     screen_color = game_env.static.background_default if game_started else game_env.static.background_special
+
+    # blocking all the undesired events
+    pygame.event.set_blocked(pygame.FINGERMOTION)
+    pygame.event.set_blocked(pygame.FINGERUP)
+    pygame.event.set_blocked(pygame.FINGERDOWN)
+    pygame.event.set_blocked(pygame.TEXTEDITING)
+    pygame.event.set_blocked(pygame.MOUSEBUTTONDOWN)
+    pygame.event.set_blocked(pygame.KEYUP)
+    pygame.event.set_blocked(ADD_MISSILE)
+    pygame.event.set_blocked(ADD_SAM_LAUNCHER)
 
     backgrounds = pygame.sprite.Group()                                                 # creating seperate group for background sprites
     stars = pygame.sprite.GroupSingle()                                                 # group of stars with max 1 sprite
@@ -172,11 +179,10 @@ def play():
     samlaunchers = pygame.sprite.GroupSingle()                                          # creating missile group for storing all the samlaunchers in the game
     title_sprites = pygame.sprite.Group()
 
+    hint_sprite = get_hint_sprite("Swipe your finger to know more")                     # creating game hint message
     title_banner_sprite = Text("{} {}".format(game_env.static.name, game_env.static.version), 100, pos_x=game_env.static.screen_width / 2, pos_y=100)           # creating title_banner_sprite text sprite with game name
     title_author_sprite = Text("By Lakhya Jyoti Nath (www.ljnath.com)", 26, pos_x=game_env.static.screen_width / 2, pos_y=game_env.static.screen_height - 20)   # creating game author
 
-    active_sprite = NameInputText()
-     
     swipe_navigated_menus = {
         Screen.GAME_MENU: GameMenuText(),
         Screen.HELP: HelpText(),
@@ -184,13 +190,14 @@ def play():
     }
     selected_menu_index = 0
 
-    active_sprite = NameInputText()
-    hint_sprite = get_hint_sprite("Swipe your finger to know more")      # creating game hint message
-    
-    if game_env.dynamic.player_name != 'player1':    
+    # showing regular game menus if user has entered the player name
+    if game_env.dynamic.player_name:
         game_env.dynamic.all_sprites.add(hint_sprite)
         active_sprite = swipe_navigated_menus[Screen.GAME_MENU]
-        selected_menu_index = 0
+    else:
+        # else showing the screen for user to enter the player name
+        active_sprite = NameInputText()
+        game_env.dynamic.active_screen = Screen.NAME_INPUT
 
     [title_sprites.add(sprite) for sprite in (active_sprite, title_banner_sprite, title_author_sprite)]     # adding all the necessary sprites to title_sprites
     [game_env.dynamic.all_sprites.add(sprite) for sprite in title_sprites]                                  # adding all title_sprites sprite to all_sprites
@@ -213,7 +220,9 @@ def play():
             [game_env.dynamic.all_sprites.add(sprite) for sprite in (active_sprite, hint_sprite)]
 
     def start_gameplay():
-        nonlocal gameover, jet, star_shown, screen_color, game_started
+        nonlocal gameover, jet, star_shown, screen_color, game_started, ADD_MISSILE, ADD_SAM_LAUNCHER
+        pygame.event.set_allowed(ADD_MISSILE)
+        pygame.event.set_allowed(ADD_SAM_LAUNCHER)
         screen_color = game_env.static.background_default                                               # restoring  screen color
         [sprite.kill() for sprite in title_sprites]                                                     # kill all the title_sprites sprite sprite
         jet = Jet()                                                                                     # re-creating the jet
@@ -253,8 +262,61 @@ def play():
             if event.type == game_env.VIDEORESIZE:
                 orientation.set_landscape(reverse=False)
 
-            # handling menu navigation via finger swipe
-            elif event.type == game_env.MOUSEMOTION and not game_pause and not game_started and not gameover:
+            # showing PAUSE message when back button is pressed on android device
+            elif event.type == game_env.KEYDOWN:
+                if game_env.dynamic.active_screen != Screen.EXIT_MENU and pygame.key.name(event.key) == 'AC Back':
+                    pygame.mixer.music.pause()
+                    last_active_screen = game_env.dynamic.active_screen
+                    last_active_sprite = active_sprite
+                    game_started, game_pause = game_pause, game_started
+                    [game_env.dynamic.all_sprites.remove(sprite) for sprite in (active_sprite, hint_sprite)]
+                    active_sprite = ExitMenuText()
+                    game_env.dynamic.all_sprites.add(active_sprite)
+                    game_env.dynamic.active_screen = Screen.EXIT_MENU
+                elif game_env.dynamic.active_screen == Screen.NAME_INPUT:
+                    active_sprite.update(event.unicode)
+
+            # mouse based interaction to simulate finger based interaction
+            elif event.type == game_env.MOUSEBUTTONUP:
+                # handling single finger only for now
+                if event.button == 1 and event.pos != last_touch_position:
+                    # resume or exit game based on user interaction with the EXIT-MENU
+                    if game_env.dynamic.active_screen == Screen.EXIT_MENU:
+                        if game_env.dynamic.exit:
+                            running = False
+                        elif not game_env.dynamic.exit:
+                            pygame.mixer.music.unpause()
+                            game_started, game_pause = game_pause, game_started
+                            game_env.dynamic.all_sprites.remove(active_sprite)
+                            game_env.dynamic.active_screen = last_active_screen
+                            active_sprite = last_active_sprite
+
+                            if game_env.dynamic.active_screen != Screen.GAME_SCREEN:
+                                [game_env.dynamic.all_sprites.add(sprite) for sprite in (active_sprite, hint_sprite)]
+
+                    # handling interaction oin the NAME-INPUT menu like button click and show/hide of keyboard
+                    elif game_env.dynamic.active_screen == Screen.NAME_INPUT:
+
+                        # if playername is not defined; this screen is shown to the user for getting the username
+                        # once the username is entered, user can touch either of CLEAR or OK surface.
+                        # we are check this touch activity here
+                        if game_env.dynamic.player_name.strip() == '':
+                            active_sprite.check_for_touch(event.pos)
+
+                    # jet can shoot at use touch and when the game is running
+                    elif game_started and not gameover:
+                        jet.shoot()
+
+                    # start the game when user has selected 'Start Game' in GAME_MENU or 'Yes' in REPLAY_MENT
+                    elif (game_env.dynamic.active_screen == Screen.GAME_MENU and game_env.dynamic.game_start_choice == StartChoice.START) or (game_env.dynamic.active_screen == Screen.REPLAY_MENU and game_env.dynamic.replay):
+                        start_gameplay()
+
+                    # exit the game when user has selected 'Exit' in GAME_MENU or 'No' in REPLAY_MENT
+                    elif game_env.dynamic.active_screen == Screen.GAME_MENU and game_env.dynamic.game_start_choice == StartChoice.EXIT or (game_env.dynamic.active_screen == Screen.REPLAY_MENU and not game_env.dynamic.replay):
+                        running = False
+
+            # handling menu navigation via finger swipe; menu navigation is not allowed during NAME_INPUT screen
+            elif event.type == game_env.MOUSEMOTION and not game_pause and not game_started and not gameover and game_env.dynamic.active_screen != Screen.NAME_INPUT:
                 # saving current interaction position; this will be later used for discarding MOUSEBUTTONUP event if the position is same
                 last_touch_position = event.pos
 
@@ -269,7 +331,6 @@ def play():
                     selected_menu_index += 1
                     if selected_menu_index == len(swipe_navigated_menus):
                         selected_menu_index = 0
-
                 elif event.rel[0] > 40:
                     user_has_swipped = True
                     is_valid_swipe = True
@@ -289,48 +350,6 @@ def play():
 
                 game_env.dynamic.all_sprites.add(active_sprite)
 
-            # showing PAUSE message when back button is pressed on android device
-            elif event.type == game_env.KEYDOWN and event.key == 1073742094 and game_env.dynamic.active_screen != Screen.EXIT_MENU:
-                pygame.mixer.music.pause()
-                last_active_screen = game_env.dynamic.active_screen
-                last_active_sprite = active_sprite
-                game_started, game_pause = game_pause, game_started
-                [game_env.dynamic.all_sprites.remove(sprite) for sprite in (active_sprite, hint_sprite)]
-                active_sprite = ExitMenuText()
-                game_env.dynamic.all_sprites.add(active_sprite)
-                game_env.dynamic.active_screen = Screen.EXIT_MENU
-
-            # mouse based interaction to simulate finger based interaction
-            elif event.type == game_env.MOUSEBUTTONUP:
-                # handling single finger only for now
-                if event.button == 1 and event.pos != last_touch_position:
-
-                    # resume or exit game based on user interaction with the EXIT-MENU
-                    if game_env.dynamic.active_screen == Screen.EXIT_MENU:
-                        if game_env.dynamic.exit:
-                            running = False
-                        elif not game_env.dynamic.exit:
-                            pygame.mixer.music.unpause()
-                            game_started, game_pause = game_pause, game_started
-                            game_env.dynamic.all_sprites.remove(active_sprite)
-                            game_env.dynamic.active_screen = last_active_screen
-                            active_sprite = last_active_sprite
-
-                            if game_env.dynamic.active_screen != Screen.GAME_SCREEN:
-                                [game_env.dynamic.all_sprites.add(sprite) for sprite in (active_sprite, hint_sprite)]
-
-                    # jet can shoot at use touch and when the game is running
-                    if game_started and not gameover:
-                        jet.shoot()
-
-                    # start the game when user has selected 'Start Game' in GAME_MENU or 'Yes' in REPLAY_MENT
-                    elif (game_env.dynamic.active_screen == Screen.GAME_MENU and game_env.dynamic.game_start_choice == StartChoice.START) or (game_env.dynamic.active_screen == Screen.REPLAY_MENU and game_env.dynamic.replay):
-                        start_gameplay()
-
-                    # exit the game when user has selected 'Exit' in GAME_MENU or 'No' in REPLAY_MENT
-                    elif game_env.dynamic.active_screen == Screen.GAME_MENU and game_env.dynamic.game_start_choice == StartChoice.EXIT or (game_env.dynamic.active_screen == Screen.REPLAY_MENU and not game_env.dynamic.replay):
-                        running = False
-
             # add missile and sam-launcher
             elif game_started and not gameover:
                 if event.type == ADD_MISSILE:                                                                       # is event to add missile is triggered; missles are not added during gameover
@@ -342,12 +361,10 @@ def play():
                     samlaunchers.add(samlauncher)
                     game_env.dynamic.all_sprites.add(samlauncher)
 
-            # resetting user_has_swipped flag, allowing user to swipe again
-            if event.type == RESET_SWIPE:
-                user_has_swipped = False
-
             # adding of clouds, backgroud, vegetation and power-up star is handled inside this
+            # the reset of user swip is also handled in this; this a user is allowed to make 1 swipe every second
             if event.type == ADD_CLOUD:
+                user_has_swipped = False
                 if game_pause:
                     continue
 
@@ -376,6 +393,15 @@ def play():
                         game_env.dynamic.game_score += 10                                           # increasing game score by 10 after each level
                         game_env.dynamic.all_sprites.remove(game_env.dynamic.noammo_sprite)         # removing no ammo sprite when ammo is refilled
 
+        # if the active screen is NAME-INPUT and if the playername is available
+        # this means that user has entered the playername in the NAME-INPNUT screen; removing the screen now
+        if game_env.dynamic.active_screen == Screen.NAME_INPUT and game_env.dynamic.player_name.strip() != '':
+            pygame.key.stop_text_input()
+            game_env.dynamic.all_sprites.remove(active_sprite)
+            active_sprite = swipe_navigated_menus[Screen.GAME_MENU]
+            [game_env.dynamic.all_sprites.add(sprite) for sprite in (active_sprite, hint_sprite)]
+            game_env.dynamic.active_screen = Screen.GAME_MENU
+
         screen.fill(screen_color)                                                                   # Filling screen with sky blue color
         [screen.blit(sprite.surf, sprite.rect) for sprite in backgrounds]                           # drawing all backgrounds sprites
         [screen.blit(sprite.surf, sprite.rect) for sprite in game_env.dynamic.all_sprites]          # drawing all sprites in the screen
@@ -383,6 +409,7 @@ def play():
         if not gameover:
             # missile hit
             if pygame.sprite.spritecollideany(jet, missiles) or pygame.sprite.spritecollideany(jet, game_env.dynamic.sam_missiles):    # Check if any missiles have collided with the player; if so
+                pygame.event.clear()                                                                        # clearing all existing events in queue once game is over
                 vibrator.vibrate(1)                                                                         # vibrating device for 1s on game-over
                 hint_sprite = get_hint_sprite("Move your device to change selection and tap to confirm")    # updating game hint message
                 gameover = True                                                                             # setting gameover to true to prevent new missiles from spawning
@@ -421,9 +448,6 @@ def play():
         pygame.display.flip()                                                                           # updating display to the screen
         gameclock.tick(game_env.static.fps)                                                             # ticking game clock at 30 to maintain 30fps
 
-        if not game_started:
-            title_author_sprite.moveOnXaxis(2)                                                          # moving the game author sprite across the X axis
-
         if game_pause:
             continue
 
@@ -452,6 +476,8 @@ if __name__ == '__main__':
 
     # hide loading screen as the game has been loaded
     loadingscreen.hide_loading_screen()
-
-    # start the game
-    play()
+    try:
+        # start the game
+        play()
+    except Exception as e:
+        print(e)

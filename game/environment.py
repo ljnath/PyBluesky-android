@@ -1,4 +1,3 @@
-import os
 import random
 
 from pygame import image
@@ -11,7 +10,8 @@ from pygame.locals import (
     RLEACCEL,
     SRCALPHA,
     VIDEORESIZE,
-    KEYDOWN
+    KEYDOWN,
+    TEXTINPUT
 )
 
 from game.common.singleton import Singleton
@@ -92,3 +92,7 @@ class GameEnvironment(metaclass=Singleton):
     @property
     def KEYDOWN(self):
         return KEYDOWN
+
+    @property
+    def TEXTINPUT(self):
+        return TEXTINPUT

@@ -29,7 +29,7 @@ class DynamicData():
         self.__replay = True
         self.__exit = False
         self.__update_url = None
-        self.__player_name = 'player1'
+        self.__player_name = ''
 
         # loading the player name from file, name can be max 20 character long
         if os.path.exists(self.__static.player_file):

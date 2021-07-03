@@ -151,7 +151,7 @@ class StaticData():
 
     @property
     def player_file(self):
-        return f'{self.android_app_directory}/data/player.dat'
+        return f'{self.android_app_directory}/player.dat'
 
     @property
     def name_length(self):
