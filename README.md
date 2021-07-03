@@ -1,21 +1,19 @@
-# PyBluesky
-### Version : 1.0.0 (android)
+# PyBluesky-android
+### Version : 1.0.0
 
 
 Author : Lakhya Jyoti Nath (ljnath)<br>
-Date : April 2020 - May 2020<br>
+Date : June 2021<br>
 Email : ljnath@ljnath.com<br>
 Website : https://www.ljnath.com
 
 
-[![Download PyBluesky](https://img.shields.io/sourceforge/dt/ljnath.svg)](https://sourceforge.net/projects/ljnath/files/latest/download)
-[![GitHub license](https://img.shields.io/github/license/ljnath/PyBluesky)](https://github.com/ljnath/PyBluesky/blob/master/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/ljnath/PyBluesky)](https://github.com/ljnath/PyBluesky/stargazers)
+[![GitHub license](https://img.shields.io/github/license/ljnath/PyBluesky-android)](https://github.com/ljnath/PyBluesky-android/blob/master/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/ljnath/PyBluesky-android)](https://github.com/ljnath/PyBluesky-android/stargazers)
 [![LGTM grade](https://img.shields.io/lgtm/grade/python/github/ljnath/PyBluesky-android)](https://lgtm.com/projects/g/ljnath/PyBluesky-android/)
 [![LGTM alerts](https://img.shields.io/lgtm/alerts/github/ljnath/PyBluesky-android)](https://lgtm.com/projects/g/ljnath/PyBluesky-android/)
 
 
-[![Download PyBluesky](https://sourceforge.net/sflogo.php?type=13&group_id=3215162)](https://sourceforge.net/p/ljnath/)  
 
 </br>
 </br>
