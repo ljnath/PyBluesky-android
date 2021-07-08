@@ -274,17 +274,17 @@ def play():
                     active_sprite = ExitMenuText()
                     game_env.dynamic.all_sprites.add(active_sprite)
                     game_env.dynamic.active_screen = Screen.EXIT_MENU
-                    
+
             # handling the textinput event to allow user to type
             elif event.type == game_env.TEXTINPUT and game_env.dynamic.active_screen == Screen.NAME_INPUT:
                 active_sprite.update(event.text)
 
             # handling menu navigation via finger swipe; menu navigation is not allowed during NAME_INPUT screen
             elif event.type == game_env.MOUSEMOTION and not game_pause and not game_started and not gameover:
-                
+
                 # saving current interaction position; this will be later used for discarding MOUSEBUTTONUP event if the position is same
                 last_touch_position = event.pos
-                
+
                 if user_has_swipped:
                     continue
 
@@ -307,11 +307,11 @@ def play():
                     continue
 
                 pygame.event.clear()
-                
+
                 # settings the current swipe_navigated_menus as the active one for it to be rendered
                 # and refreshing the active_sprite in game_env.dynamic.all_sprites for re-rendering
                 game_env.dynamic.active_screen = list(swipe_navigated_menus.keys())[selected_menu_index]
-                
+
                 game_env.dynamic.all_sprites.remove(active_sprite)
                 active_sprite = swipe_navigated_menus[game_env.dynamic.active_screen]
                 game_env.dynamic.all_sprites.add(active_sprite)
@@ -354,7 +354,7 @@ def play():
                     # exit the game when user has selected 'Exit' in GAME_MENU or 'No' in REPLAY_MENT
                     elif game_env.dynamic.active_screen == Screen.GAME_MENU and game_env.dynamic.game_start_choice == StartChoice.EXIT or (game_env.dynamic.active_screen == Screen.REPLAY_MENU and not game_env.dynamic.replay):
                         running = False
-                        
+
             # adding of clouds, backgroud, vegetation and power-up star is handled inside this
             # the reset of user swip is also handled in this; this a user is allowed to make 1 swipe every second
             elif event.type == ADD_CLOUD:
@@ -392,12 +392,12 @@ def play():
                 new_missile = Missile()                                                                                         # create a new missile
                 missiles.add(new_missile)                                                                                       # adding the missile to missle group
                 game_env.dynamic.all_sprites.add(new_missile)                                                                   # adding the missile to all_sprites group as well
-                
+
             elif event.type == ADD_SAM_LAUNCHER and not samlaunchers.sprites() and game_env.dynamic.game_level > 5:
                 samlauncher = SamLauncher()
                 samlaunchers.add(samlauncher)
                 game_env.dynamic.all_sprites.add(samlauncher)
-                    
+
         # if the active screen is NAME-INPUT and if the playername is available
         # this means that user has entered the playername in the NAME-INPNUT screen; removing the screen now
         if game_env.dynamic.active_screen == Screen.NAME_INPUT and game_env.dynamic.player_name.strip() != '':
@@ -484,8 +484,6 @@ if __name__ == '__main__':
 
     # hide loading screen as the game has been loaded
     loadingscreen.hide_loading_screen()
-    try:
-        # start the game
-        play()
-    except Exception as e:
-        print(e)
+
+    # start the game
+    play()

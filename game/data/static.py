@@ -67,12 +67,8 @@ class StaticData():
         return (0, 0, 255)                                            # selection color is blue
 
     @property
-    def game_icon(self):
-        return f'{self.icon_asset_directory}/pybluesky.ico'   # jet image path
-
-    @property
     def game_font(self):
-        return f'{self.fonts_asset_directory}/arcade.ttf'      # game font file path
+        return f'{self.fonts_asset_directory}/arcade.ttf'               # game font file path
 
     @property
     def clouds(self):
@@ -80,7 +76,7 @@ class StaticData():
             f'{self.images_asset_directory}/cloud1.png',
             f'{self.images_asset_directory}/cloud2.png',
             f'{self.images_asset_directory}/cloud3.png'
-        )                                                       # all game cloud designs
+        )                                                               # all game cloud designs
 
     @property
     def vegetation(self):
