@@ -37,7 +37,7 @@ setup(
     author_email='ljnath@ljnath.com',
     description='A simple python game to navigate your jet and fight \
         though a massive missiles attack based on pygame framework',
-    url='https://github.com/ljnath/PyBluesky',
+    url='https://github.com/ljnath/PyBluesky-android',
     packages=find_packages(),
     package_data={
         '.': ['main.py'],
@@ -49,6 +49,7 @@ setup(
     options={
             'apk': {
                 'ignore-setup-py': None,
+                # 'release': None,
                 'package': 'com.ljnath.pybluesky',
                 'requirements': 'pygame==2.0.1,aiohttp==3.7.4.post0,multidict==5.1.0,\
                     attrs==21.2.0,async-timeout==3.0.1,chardet==4.0.0,idna==3.2,\
@@ -59,7 +60,7 @@ setup(
                 'presplash-color': '#C4E2FF',
                 'icon': 'assets/icon/pybluesky.png',
                 'dist-name': 'PyBluesky',
-                'android-api': 28,
+                'android-api': 29,
                 'bootstrap': 'sdl2',
                 'orientation': 'landscape',
                 'wakelock': None,
