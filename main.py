@@ -109,7 +109,7 @@ def get_hint_sprite(hint_message: str) -> None:
     Method to create hint text
     """
     game_env = GameEnvironment()
-    return Text(hint_message, 30, pos_x=game_env.static.screen_width / 2, pos_y=150)        # creating game hint message
+    return Text(f'HINT: {hint_message}', 26, pos_x=game_env.static.screen_width / 2, pos_y=game_env.static.screen_height - 30)        # creating game hint message
 
 
 def play():
@@ -164,8 +164,8 @@ def play():
     pygame.event.set_blocked(pygame.FINGERMOTION)
     pygame.event.set_blocked(pygame.FINGERUP)
     pygame.event.set_blocked(pygame.FINGERDOWN)
-    pygame.event.set_blocked(pygame.TEXTEDITING)
     pygame.event.set_blocked(pygame.MOUSEBUTTONDOWN)
+    pygame.event.set_blocked(pygame.MOUSEMOTION)
     pygame.event.set_blocked(pygame.KEYUP)
     pygame.event.set_blocked(ADD_MISSILE)
     pygame.event.set_blocked(ADD_SAM_LAUNCHER)
@@ -181,8 +181,7 @@ def play():
 
     hint_sprite = get_hint_sprite("Swipe your finger to know more")                     # creating game hint message
     title_banner_sprite = Text("{} {}".format(game_env.static.name, game_env.static.version), 100, pos_x=game_env.static.screen_width / 2, pos_y=100)           # creating title_banner_sprite text sprite with game name
-    title_author_sprite = Text("By Lakhya Jyoti Nath (www.ljnath.com)", 26, pos_x=game_env.static.screen_width / 2, pos_y=game_env.static.screen_height - 20)   # creating game author
-
+    title_author_sprite = Text("By Lakhya Jyoti Nath aka ljnath", 28, pos_x=game_env.static.screen_width / 2, pos_y=150)   # creating game author
     swipe_navigated_menus = {
         Screen.GAME_MENU: GameMenuText(),
         Screen.HELP: HelpText(),
@@ -194,6 +193,7 @@ def play():
     if game_env.dynamic.player_name:
         game_env.dynamic.all_sprites.add(hint_sprite)
         active_sprite = swipe_navigated_menus[Screen.GAME_MENU]
+        pygame.event.set_allowed(pygame.MOUSEMOTION)
     else:
         # else showing the screen for user to enter the player name
         active_sprite = NameInputText()
@@ -221,6 +221,7 @@ def play():
 
     def start_gameplay():
         nonlocal gameover, jet, star_shown, screen_color, game_started, ADD_MISSILE, ADD_SAM_LAUNCHER
+        pygame.event.set_blocked(game_env.MOUSEMOTION)
         pygame.event.set_allowed(ADD_MISSILE)
         pygame.event.set_allowed(ADD_SAM_LAUNCHER)
         screen_color = game_env.static.background_default                                               # restoring  screen color
@@ -262,7 +263,7 @@ def play():
             if event.type == game_env.VIDEORESIZE:
                 orientation.set_landscape(reverse=False)
 
-            # showing PAUSE message when back button is pressed on android device
+            # handling keydown event to show the pause menu
             elif event.type == game_env.KEYDOWN:
                 if game_env.dynamic.active_screen != Screen.EXIT_MENU and pygame.key.name(event.key) == 'AC Back':
                     pygame.mixer.music.pause()
@@ -273,8 +274,47 @@ def play():
                     active_sprite = ExitMenuText()
                     game_env.dynamic.all_sprites.add(active_sprite)
                     game_env.dynamic.active_screen = Screen.EXIT_MENU
-                elif game_env.dynamic.active_screen == Screen.NAME_INPUT:
-                    active_sprite.update(event.unicode)
+                    
+            # handling the textinput event to allow user to type
+            elif event.type == game_env.TEXTINPUT and game_env.dynamic.active_screen == Screen.NAME_INPUT:
+                active_sprite.update(event.text)
+
+            # handling menu navigation via finger swipe; menu navigation is not allowed during NAME_INPUT screen
+            elif event.type == game_env.MOUSEMOTION and not game_pause and not game_started and not gameover:
+                
+                # saving current interaction position; this will be later used for discarding MOUSEBUTTONUP event if the position is same
+                last_touch_position = event.pos
+                
+                if user_has_swipped:
+                    continue
+
+                is_valid_swipe = False
+
+                if event.rel[0] < -40:
+                    user_has_swipped = True
+                    is_valid_swipe = True
+                    selected_menu_index += 1
+                    if selected_menu_index == len(swipe_navigated_menus):
+                        selected_menu_index = 0
+                elif event.rel[0] > 40:
+                    user_has_swipped = True
+                    is_valid_swipe = True
+                    selected_menu_index -= 1
+                    if selected_menu_index < 0:
+                        selected_menu_index = len(swipe_navigated_menus) - 1
+
+                if not is_valid_swipe:
+                    continue
+
+                pygame.event.clear()
+                
+                # settings the current swipe_navigated_menus as the active one for it to be rendered
+                # and refreshing the active_sprite in game_env.dynamic.all_sprites for re-rendering
+                game_env.dynamic.active_screen = list(swipe_navigated_menus.keys())[selected_menu_index]
+                
+                game_env.dynamic.all_sprites.remove(active_sprite)
+                active_sprite = swipe_navigated_menus[game_env.dynamic.active_screen]
+                game_env.dynamic.all_sprites.add(active_sprite)
 
             # mouse based interaction to simulate finger based interaction
             elif event.type == game_env.MOUSEBUTTONUP:
@@ -314,56 +354,10 @@ def play():
                     # exit the game when user has selected 'Exit' in GAME_MENU or 'No' in REPLAY_MENT
                     elif game_env.dynamic.active_screen == Screen.GAME_MENU and game_env.dynamic.game_start_choice == StartChoice.EXIT or (game_env.dynamic.active_screen == Screen.REPLAY_MENU and not game_env.dynamic.replay):
                         running = False
-
-            # handling menu navigation via finger swipe; menu navigation is not allowed during NAME_INPUT screen
-            elif event.type == game_env.MOUSEMOTION and not game_pause and not game_started and not gameover and game_env.dynamic.active_screen != Screen.NAME_INPUT:
-                # saving current interaction position; this will be later used for discarding MOUSEBUTTONUP event if the position is same
-                last_touch_position = event.pos
-
-                if user_has_swipped:
-                    continue
-
-                is_valid_swipe = False
-
-                if event.rel[0] < -40:
-                    user_has_swipped = True
-                    is_valid_swipe = True
-                    selected_menu_index += 1
-                    if selected_menu_index == len(swipe_navigated_menus):
-                        selected_menu_index = 0
-                elif event.rel[0] > 40:
-                    user_has_swipped = True
-                    is_valid_swipe = True
-                    selected_menu_index -= 1
-                    if selected_menu_index < 0:
-                        selected_menu_index = len(swipe_navigated_menus) - 1
-
-                if not is_valid_swipe:
-                    continue
-
-                # settings the current swipe_navigated_menus as the active one for it to be rendered
-                # and refreshing the active_sprite in game_env.dynamic.all_sprites for re-rendering
-                game_env.dynamic.all_sprites.remove(active_sprite)
-
-                game_env.dynamic.active_screen = list(swipe_navigated_menus.keys())[selected_menu_index]
-                active_sprite = swipe_navigated_menus[game_env.dynamic.active_screen]
-
-                game_env.dynamic.all_sprites.add(active_sprite)
-
-            # add missile and sam-launcher
-            elif game_started and not gameover:
-                if event.type == ADD_MISSILE:                                                                       # is event to add missile is triggered; missles are not added during gameover
-                    new_missile = Missile()                                                                         # create a new missile
-                    missiles.add(new_missile)                                                                       # adding the missile to missle group
-                    game_env.dynamic.all_sprites.add(new_missile)                                                   # adding the missile to all_sprites group as well
-                if event.type == ADD_SAM_LAUNCHER and not samlaunchers.sprites() and game_env.dynamic.game_level > 5:
-                    samlauncher = SamLauncher()
-                    samlaunchers.add(samlauncher)
-                    game_env.dynamic.all_sprites.add(samlauncher)
-
+                        
             # adding of clouds, backgroud, vegetation and power-up star is handled inside this
             # the reset of user swip is also handled in this; this a user is allowed to make 1 swipe every second
-            if event.type == ADD_CLOUD:
+            elif event.type == ADD_CLOUD:
                 user_has_swipped = False
                 if game_pause:
                     continue
@@ -374,25 +368,36 @@ def play():
                     vegetations.add(vegetation)                                                                                 # adding sprite to groups for update and display
                     backgrounds.add(vegetation)
 
-                new_cloud = Cloud()                                                                 # is event to add cloud is triggered
-                clouds.add(new_cloud)                                                               # create a new cloud
-                backgrounds.add(new_cloud)                                                          # adding the cloud to all_sprites group
+                new_cloud = Cloud()                                                                                             # is event to add cloud is triggered
+                clouds.add(new_cloud)                                                                                           # create a new cloud
+                backgrounds.add(new_cloud)                                                                                      # adding the cloud to all_sprites group
                 if not gameover and game_started:
-                    game_env.dynamic.game_playtime += 1                                             # increasing playtime by 1s as this event is triggered every second; just reusing existing event instead of recreating a new event
-                    if not star_shown and random.randint(0, 30) % 3 == 0:                           # probabity of getting a star is 30%
+                    game_env.dynamic.game_playtime += 1                                                                         # increasing playtime by 1s as this event is triggered every second; just reusing existing event instead of recreating a new event
+                    if not star_shown and random.randint(0, 30) % 3 == 0:                                                       # probabity of getting a star is 30%
                         star = Star()
                         stars.add(star)
                         game_env.dynamic.all_sprites.add(star)
                         star_shown = True
-                    if game_env.dynamic.game_playtime % 20 == 0:                                    # changing game level very 20s
+                    if game_env.dynamic.game_playtime % 20 == 0:                                                                # changing game level very 20s
                         star_shown = False
-                        game_env.dynamic.levelup_sound.play()                                       # playing level up sound
-                        game_env.dynamic.game_level += 1                                            # increasing the game level
+                        game_env.dynamic.levelup_sound.play()                                                                   # playing level up sound
+                        game_env.dynamic.game_level += 1                                                                        # increasing the game level
                         pygame.time.set_timer(ADD_MISSILE, int(1000 / (game_env.static.missile_per_sec + int(game_env.dynamic.game_level / 2))))    # updating timer of ADD_MISSLE for more missiles to be added
-                        game_env.dynamic.ammo += 50                                                 # adding 50 ammo on each level up
-                        game_env.dynamic.game_score += 10                                           # increasing game score by 10 after each level
-                        game_env.dynamic.all_sprites.remove(game_env.dynamic.noammo_sprite)         # removing no ammo sprite when ammo is refilled
+                        game_env.dynamic.ammo += 50                                                                             # adding 50 ammo on each level up
+                        game_env.dynamic.game_score += 10                                                                       # increasing game score by 10 after each level
+                        game_env.dynamic.all_sprites.remove(game_env.dynamic.noammo_sprite)                                     # removing no ammo sprite when ammo is refilled
 
+            # # add missile and sam-launcher if the game has started and not gameover
+            elif event.type == ADD_MISSILE:                                                                                     # is event to add missile is triggered; missles are not added during gameover
+                new_missile = Missile()                                                                                         # create a new missile
+                missiles.add(new_missile)                                                                                       # adding the missile to missle group
+                game_env.dynamic.all_sprites.add(new_missile)                                                                   # adding the missile to all_sprites group as well
+                
+            elif event.type == ADD_SAM_LAUNCHER and not samlaunchers.sprites() and game_env.dynamic.game_level > 5:
+                samlauncher = SamLauncher()
+                samlaunchers.add(samlauncher)
+                game_env.dynamic.all_sprites.add(samlauncher)
+                    
         # if the active screen is NAME-INPUT and if the playername is available
         # this means that user has entered the playername in the NAME-INPNUT screen; removing the screen now
         if game_env.dynamic.active_screen == Screen.NAME_INPUT and game_env.dynamic.player_name.strip() != '':
@@ -401,23 +406,26 @@ def play():
             active_sprite = swipe_navigated_menus[Screen.GAME_MENU]
             [game_env.dynamic.all_sprites.add(sprite) for sprite in (active_sprite, hint_sprite)]
             game_env.dynamic.active_screen = Screen.GAME_MENU
+            pygame.event.set_allowed(pygame.MOUSEMOTION)
 
         screen.fill(screen_color)                                                                   # Filling screen with sky blue color
         [screen.blit(sprite.surf, sprite.rect) for sprite in backgrounds]                           # drawing all backgrounds sprites
         [screen.blit(sprite.surf, sprite.rect) for sprite in game_env.dynamic.all_sprites]          # drawing all sprites in the screen
 
-        if not gameover:
+        if game_started and not gameover:
             # missile hit
             if pygame.sprite.spritecollideany(jet, missiles) or pygame.sprite.spritecollideany(jet, game_env.dynamic.sam_missiles):    # Check if any missiles have collided with the player; if so
                 pygame.event.clear()                                                                        # clearing all existing events in queue once game is over
                 vibrator.vibrate(1)                                                                         # vibrating device for 1s on game-over
-                hint_sprite = get_hint_sprite("Move your device to change selection and tap to confirm")    # updating game hint message
+                pygame.event.set_blocked(ADD_MISSILE)                                                             # blocking event to add missile due to gameover
+                pygame.event.set_blocked(ADD_SAM_LAUNCHER)                                                        # blocking event to add new sam launcher due to gameover
                 gameover = True                                                                             # setting gameover to true to prevent new missiles from spawning
                 active_sprite = ReplayMenuText()
                 game_env.dynamic.active_screen = Screen.REPLAY_MENU
                 jet.kill()                                                                              # killing the jet
                 [sam_missile.kill() for sam_missile in game_env.dynamic.sam_missiles]                   # killing the SAM missile
                 game_env.dynamic.collision_sound.play()
+                hint_sprite = get_hint_sprite("Move your device to change selection and tap to confirm")    # updating game hint message
                 [game_env.dynamic.all_sprites.add(sprite) for sprite in (active_sprite, hint_sprite)]   # adding the gameover and the hint sprite
                 game_env.dynamic.all_sprites.remove(game_env.dynamic.noammo_sprite)
                 submit_result()

@@ -96,7 +96,7 @@ class NetworkHandler(Handlers):
         try:
             payload['apiKey'] = self.__api_key
             async with session.put(self.__api_endpoint, json=payload, ssl=False, timeout=aiohttp.ClientTimeout(total=30)) as response:
-                if response.status not in (200, 201):
+                if response.status != 201:
                     result = False
         except Exception:
             result = False
