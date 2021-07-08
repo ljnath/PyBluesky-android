@@ -137,7 +137,6 @@ def play():
     screen = pygame.display.set_mode((game_env.static.screen_width, game_env.static.screen_height), flags)
 
     pygame.display.set_caption('{} version. {}'.format(game_env.static.name, game_env.static.version))          # setting name of game window
-    pygame.display.set_icon(pygame.image.load(game_env.static.game_icon))                                       # updating game icon to the jet image
     pygame.mouse.set_visible(False)                                                     # hiding the mouse pointer from the game screen
 
     gameclock = pygame.time.Clock()                                                     # setting up game clock to maintain constant fps
