@@ -5,7 +5,7 @@
 Author : Lakhya Jyoti Nath (ljnath)<br>
 Date : June 2021<br>
 Email : ljnath@ljnath.com<br>
-Website : https://www.ljnath.com
+Website : https://ljnath.com
 
 
 [![GitHub license](https://img.shields.io/github/license/ljnath/PyBluesky-android)](https://github.com/ljnath/PyBluesky-android/blob/master/LICENSE)

@@ -99,7 +99,9 @@ rm android-ndk-r19c-linux-x86_64.zip
 5. Download android platform and build-tools
 ```
 sdkmanager "platforms;android-28"
+sdkmanager "platforms;android-29"
 sdkmanager "build-tools;28.0.2"
+sdkmanager "build-tools;29.0.0"
 ```
 
 6. Setup python virtual environment

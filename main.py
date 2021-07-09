@@ -26,7 +26,7 @@ PyBluesky - A simple python game to navigate your jet and fight though a massive
 Version: 1.0.0 (based on desktop release 1.0.5 ; changed version number for android release)
 Author: Lakhya Jyoti Nath (ljnath)
 Email:  ljnath@ljnath.com
-Website: https://www.ljnath.com
+Website: https://ljnath.com
 """
 
 import asyncio
@@ -208,15 +208,6 @@ def play():
     create_vegetation(vegetations)
     menu_screens = {Screen.REPLAY_MENU, Screen.GAME_MENU, Screen.EXIT_MENU}
     last_active_sprite = (game_env.dynamic.active_screen, active_sprite)
-
-    def hide_exit_menu():
-        nonlocal game_pause, game_started, active_sprite
-        pygame.mixer.music.unpause()
-        game_started, game_pause = game_pause, game_started
-        game_env.dynamic.all_sprites.remove(active_sprite)
-        game_env.dynamic.active_screen, active_sprite = last_active_sprite
-        if game_env.dynamic.active_screen != Screen.GAME_SCREEN:
-            [game_env.dynamic.all_sprites.add(sprite) for sprite in (active_sprite, hint_sprite)]
 
     def start_gameplay():
         nonlocal gameover, jet, star_shown, screen_color, game_started, ADD_MISSILE, ADD_SAM_LAUNCHER

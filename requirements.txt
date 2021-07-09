@@ -1,5 +1,6 @@
 appdirs==1.4.4
 colorama==0.4.4
+Cython==0.29.23
 importlib-metadata==4.6.0
 Jinja2==3.0.1
 MarkupSafe==2.0.1
