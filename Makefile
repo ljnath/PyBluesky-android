@@ -1,17 +1,37 @@
 # Makefile for PyBluesky android project
 # author - ljnath (www.ljnath.com}
 
-# Usage
+# variables used for building project
+ACTIVITY_NAME   = org.kivy.android.PythonActivity
+ADB				= adb
+ARCHITECTURE    = arm64-v8a
+APK_NAME        = PyBluesky
+PACKAGE_NAME    = com.ljnath.pybluesky
+PYTHON			= python
+RELEASE_TYPE    = debug
+VERSION         = 1.0.0
 
-ADB = adb
-PYTHON = python
-ARCHITECTURE = armeabi-v7a
-VERSION = 1.0.0
-APK_NAME = PyBluesky__${ARCHITECTURE}-debug-${VERSION}-.apk
-PACKAGE_NAME = com.ljnath.pybluesky
-ACTIVITY_NAME = org.kivy.android.PythonActivity
+ifeq (${RELEASE_TYPE}, debug)
+	APK_FILE    = ${APK_NAME}__${ARCHITECTURE}-${RELEASE_TYPE}-${VERSION}-.apk
+else ifeq (${RELEASE_TYPE}, release)
+	APK_FILE    = ${APK_NAME}__${ARCHITECTURE}-${RELEASE_TYPE}-unsigned-${VERSION}-.apk
+endif
 
-all: compile uninstall_apk install_apk run_apk
+# variables used for signing
+JAR_SIGNER      = jarsigner
+SIGALG          = 
+DIGESTALG       = 
+KEYSTORE_FILE   = 
+KEYSTORE_ALIAS  = 
+
+# variables used for zipalign
+ZIPALIGN        = 
+FINAL_APK       = ${APK_NAME}_${ARCHITECTURE}-${RELEASE_TYPE}-signed-${VERSION}.apk
+
+
+# Targets
+
+all: compile uninstall install run
 
 compile:
 	@echo Compiling project
@@ -19,23 +39,23 @@ compile:
 
 reinstall: uninstall install
 
-uninstall_apk:
+uninstall:
 	@echo Un-installing app with package name ${PACKAGE_NAME} from target device
 	${ADB} uninstall ${PACKAGE_NAME}
 
-install_apk:
-	@echo Installing ${APK_NAME} in target device
-	${ADB} install ${APK_NAME}
+install:
+	@echo Installing ${APK_FILE} in target device
+	${ADB} install ${APK_FILE}
 
-run_apk:
-	@echo Starting ${APK_NAME} in target device
+run:
+	@echo Starting ${APK_FILE} in target device
 	${ADB} shell am start -n ${PACKAGE_NAME}/${ACTIVITY_NAME}
 
 reset: clean update
 
 clean:
-	@echo Deleting ${APK_NAME}
-	rm -f ${APK_NAME} 
+	@echo Deleting all apk files
+	rm -f *.apk
 
 update:
 	@echo Cleaning local changes before updating codebase
@@ -43,17 +63,10 @@ update:
 	@echo Updating codebase
 	git pull
 
-help:
-	@echo -------------------------------------------
-	@echo PyBluesky makefile : available usages
-	@echo -------------------------------------------
-	@echo make 			: Default operations to compile project, uninstall apk from attached device, install new apk and start it
-	@echo make -k		: Same as default, but it will configure with the next dependency even if a dependency fails
-	@echo make compile	: Compile PyBluesky project using setup.pyc
-	@echo make uninstall_apk: Uninstall apk from attached android device using adb
-	@echo make install_apk	: Install apk into attached android device using adb
-	@echo make run_apk	: Start apk in the attached android device using adb
-	@echo make reset	: clean + update
-	@echo make clean	: Clean up already build apk file
-	@echo make update	: Reset local code repo and update with github
-	@echo -------------------------------------------
+sign:
+	@echo Signing apk
+	${JAR_SIGNER} -verbose -sigalg ${SIGALG} -digestalg ${DIGESTALG} -keystore ${KEYSTORE_FILE} ${APK_FILE} ${KEYSTORE_ALIAS}
+
+zipalign:
+	@echo Running zipalign on ${APK_FILE}
+	${ZIPALIGN} -f -v 4 ${APK_FILE} ${FINAL_APK}
