@@ -52,6 +52,7 @@ setup(
             'apk': {
                 'ignore-setup-py': None,
                 # 'release': None,
+                'arch': 'arm64-v8a',
                 'package': 'com.ljnath.pybluesky',
                 'requirements': 'pygame==2.0.1,aiohttp==3.7.4.post0,multidict==5.1.0,\
                     attrs==21.2.0,async-timeout==3.0.1,chardet==4.0.0,idna==3.2,\

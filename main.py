@@ -36,7 +36,6 @@ import webbrowser
 
 import pygame
 from android import loadingscreen
-from android.permissions import check_permission
 from plyer import accelerometer, orientation, vibrator
 
 from game.data.enums import Screen, StartChoice
@@ -467,11 +466,6 @@ def play():
 
 
 if __name__ == '__main__':
-    # handle android permission
-    print(f"VIBRATE permission = {check_permission('android.permission.VIBRATE')}")
-    print(f"INTERNET permission = {check_permission('android.permission.INTERNET')}")
-    print(f"WRITE_EXTERNAL_STORAGE permission = {check_permission('android.permission.WRITE_EXTERNAL_STORAGE')}")
-
     # hide loading screen as the game has been loaded
     loadingscreen.hide_loading_screen()
 
