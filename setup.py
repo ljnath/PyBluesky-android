@@ -30,11 +30,10 @@ Website: https://ljnath.com
 from distutils.core import setup
 from setuptools import find_packages
 
-from game.data.static import StaticData
 
 setup(
-    name= StaticData.name,
-    version= StaticData.version, 
+    name="PyBluesky",
+    version='1.0.0',
     author="Lakhya Jyoti Nath (ljnath)",
     author_email='ljnath@ljnath.com',
     description='A simple python game to navigate your jet and fight \
@@ -62,7 +61,7 @@ setup(
                 'presplash': 'assets/images/presplash.png',
                 'presplash-color': '#C4E2FF',
                 'icon': 'assets/icon/pybluesky.png',
-                'dist-name': StaticData.name,
+                'dist-name': 'PyBluesky',
                 'android-api': 29,
                 'bootstrap': 'sdl2',
                 'orientation': 'landscape',
