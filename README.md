@@ -1,5 +1,7 @@
+
 # PyBluesky-android
 ### Version : 1.0.0
+
 
 
 Author : Lakhya Jyoti Nath (ljnath)<br>
@@ -7,16 +9,15 @@ Date : June 2021<br>
 Email : ljnath@ljnath.com<br>
 Website : https://ljnath.com
 
-
 [![GitHub license](https://img.shields.io/github/license/ljnath/PyBluesky-android)](https://github.com/ljnath/PyBluesky-android/blob/master/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/ljnath/PyBluesky-android)](https://github.com/ljnath/PyBluesky-android/stargazers)
 [![LGTM grade](https://img.shields.io/lgtm/grade/python/github/ljnath/PyBluesky-android)](https://lgtm.com/projects/g/ljnath/PyBluesky-android/)
 [![LGTM alerts](https://img.shields.io/lgtm/alerts/github/ljnath/PyBluesky-android)](https://lgtm.com/projects/g/ljnath/PyBluesky-android/)
 
 
+[![Google PlayStore](https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png)](play.google.com/store/apps/details?id=com.ljnath.pybluesky)
 
-</br>
-</br>
+
 
 ## INTRODUCTION
 PyBluesky is a simple 2D python game developed using the pygame framework.</br>
