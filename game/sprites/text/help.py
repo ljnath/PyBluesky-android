@@ -17,7 +17,7 @@ class HelpText(Text):
         all_surfaces.append(seperator)
         all_surfaces.append(self.font.render('Your objective should you choose to accept is to navigate your jet without getting hit by', 1, self.color))
         all_surfaces.append(self.font.render('the incoming missiles. For self-defence you can shoot down the enemy missiles. You are', 1, self.color))
-        all_surfaces.append(self.font.render('armed with 100 special missiles. Level-up awards you another 50 special missiles and a', 1, self.color))
+        all_surfaces.append(self.font.render('armed with 100 special missiles. Level-up awards you another 100 special missiles and a', 1, self.color))
         all_surfaces.append(self.font.render('power-up star which will instantly deactivate all the enemy missiles.', 1, self.color))
         all_surfaces.append(self.font.render('Your jet can carry maximum 999 special missiles.', 1, self.color))
         all_surfaces.append(seperator)

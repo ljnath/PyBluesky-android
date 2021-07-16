@@ -127,7 +127,7 @@ class StaticData():
 
     @property
     def missile_per_sec(self):
-        return 2                            # number of missiles to be spawned per seconds
+        return 1                            # number of missiles to be spawned per seconds
 
     @property
     def background_default(self):

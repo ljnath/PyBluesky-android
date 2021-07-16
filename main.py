@@ -372,7 +372,7 @@ def play():
                         game_env.dynamic.levelup_sound.play()                                                                   # playing level up sound
                         game_env.dynamic.game_level += 1                                                                        # increasing the game level
                         pygame.time.set_timer(ADD_MISSILE, int(1000 / (game_env.static.missile_per_sec + int(game_env.dynamic.game_level / 2))))    # updating timer of ADD_MISSLE for more missiles to be added
-                        game_env.dynamic.ammo += 50                                                                             # adding 50 ammo on each level up
+                        game_env.dynamic.ammo += 100                                                                            # adding 100 ammo on each level up
                         game_env.dynamic.game_score += 10                                                                       # increasing game score by 10 after each level
                         game_env.dynamic.all_sprites.remove(game_env.dynamic.noammo_sprite)                                     # removing no ammo sprite when ammo is refilled
 
