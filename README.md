@@ -1,11 +1,11 @@
 
 # PyBluesky-android
-### Version : 1.0.0
+### Version : 1.0.1
 
 
 
 Author : Lakhya Jyoti Nath (ljnath)<br>
-Date : June 2021<br>
+Date : June 2021 - July 2021<br>
 Email : ljnath@ljnath.com<br>
 Website : https://ljnath.com
 

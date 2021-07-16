@@ -14,7 +14,7 @@ class StaticData():
 
     @property
     def version(self):
-        return '1.0.0'
+        return '1.0.1'
 
     @property
     def android_app_directory(self):

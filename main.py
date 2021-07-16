@@ -23,7 +23,7 @@ SOFTWARE.
 
 PyBluesky - A simple python game to navigate your jet and fight though a massive missiles attack based on pygame framework.
 
-Version: 1.0.0 (based on desktop release 1.0.5 ; changed version number for android release)
+Version: 1.0.1
 Author: Lakhya Jyoti Nath (ljnath)
 Email:  ljnath@ljnath.com
 Website: https://ljnath.com

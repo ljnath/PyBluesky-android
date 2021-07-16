@@ -54,8 +54,9 @@ run:
 reset: clean update
 
 clean:
-	@echo Deleting all apk files
+	@echo Deleting all apk files and build directory
 	rm -f *.apk
+	rm -rf build
 
 update:
 	@echo Cleaning local changes before updating codebase

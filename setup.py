@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Version: 1.0.0
+Version: 1.0.1
 Author: Lakhya Jyoti Nath (ljnath)
 Email:  ljnath@ljnath.com
 Website: https://ljnath.com
@@ -33,7 +33,7 @@ from setuptools import find_packages
 
 setup(
     name="PyBluesky",
-    version='1.0.0',
+    version='1.0.1',
     author="Lakhya Jyoti Nath (ljnath)",
     author_email='ljnath@ljnath.com',
     description='A simple python game to navigate your jet and fight \
