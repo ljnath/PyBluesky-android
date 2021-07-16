@@ -13,8 +13,11 @@ class Missile(sprite.Sprite):
         game_env = GameEnvironment()
         self.surf = image.load(game_env.static.missile_activated_image).convert()                                       # loading missile image from file
         self.surf.set_colorkey((255, 255, 255), game_env.RLEACCEL)                                                      # setting the white color as the transperant area; RLEACCEL is used for better performance on non accelerated displays
-        pos_x = random.randint(game_env.static.screen_width + 10, game_env.static.screen_width + 60)                    # generating random x position
-        pos_y = random.randint(0, game_env.static.screen_height - game_env.vegetation_size[1] / 2)                      # generating random y position
+        
+        # generating random missile position
+        # but missile cannot on or above the scrore sprite
+        pos_x = random.randint(game_env.static.screen_width + 10, game_env.static.screen_width + 60)
+        pos_y = random.randint(game_env.static.score_sprite_width, game_env.static.screen_height - game_env.vegetation_size[1] / 2)
         self.rect = self.surf.get_rect(center=(pos_x, pos_y))                                                           # create rectange from the missile screen
         self.__activated = True                                                                                         # bad missiles will drop down
         self.__speed = random.randint(5, 20)                                                                            # generating random speed for the missle

@@ -8,9 +8,9 @@ class ScoreText(Text):
         It creates the game score sprite
     """
     def __init__(self):
-        Text.__init__(self, text="LEVEL 00 TIME 0 AMMO 0 SCORE 0", size=28, color=(103, 103, 103))                          # initializing parent class with defautl text and color
         game_env = GameEnvironment()
-        self.rect = self.surf.get_rect(topright=(game_env.static.screen_width - self.surf.get_width() / 2 + 30, 2))         # creating rectangle from text surface
+        Text.__init__(self, text="LEVEL 00 TIME 0 AMMO 0 SCORE 0", size=game_env.static.score_sprite_width, color=(103, 103, 103))  # initializing parent class with defautl text and color
+        self.rect = self.surf.get_rect(topright=(game_env.static.screen_width - self.surf.get_width() / 2 + 60, 2))                 # creating rectangle from text surface
 
     def update(self):
         game_env = GameEnvironment()

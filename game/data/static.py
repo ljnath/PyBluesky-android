@@ -154,6 +154,10 @@ class StaticData():
         return 12
 
     @property
+    def score_sprite_width(self):
+        return 40
+    
+    @property
     def game_sound(self):
         return {
             'music': f'{self.audio_asset_directory}/music.ogg',
