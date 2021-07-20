@@ -13,7 +13,7 @@ class Cloud(sprite.Sprite):
         game_env = GameEnvironment()
         self.surf = image.load(random.choice(game_env.static.clouds)).convert()                     # loading cloud image
         self.surf.set_colorkey((255, 255, 255), game_env.RLEACCEL)                                  # setting the white color as the transperant area; RLEACCEL is used for better performance on non accelerated displays
-        self.__speed = 5
+        self.__speed = 10
         pos_x = random.randint(game_env.static.screen_width + 10, game_env.static.screen_width + 50)
         pos_y = random.randint(0, game_env.static.screen_height - game_env.vegetation_size[1] / 2)
         self.rect = self.surf.get_rect(center=(pos_x, pos_y))                                       # create rectange from the cloud screen

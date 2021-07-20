@@ -10,7 +10,7 @@ class ScoreText(Text):
     def __init__(self):
         game_env = GameEnvironment()
         Text.__init__(self, text="LEVEL 00 TIME 0 AMMO 0 SCORE 0", size=game_env.static.score_sprite_width, color=(103, 103, 103))  # initializing parent class with defautl text and color
-        self.rect = self.surf.get_rect(topright=(game_env.static.screen_width - self.surf.get_width() / 2 + 60, 2))                 # creating rectangle from text surface
+        self.rect = self.surf.get_rect(topright=(game_env.static.screen_width - self.surf.get_width() / 2, 2))                      # creating rectangle from text surface
 
     def update(self):
         game_env = GameEnvironment()

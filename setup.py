@@ -51,11 +51,9 @@ setup(
             'apk': {
                 'ignore-setup-py': None,
                 # 'release': None,
-                'arch': 'arm64-v8a',
+                'arch': 'armeabi-v7a',
                 'package': 'com.ljnath.pybluesky',
-                'requirements': 'pygame==2.0.1,aiohttp==3.7.4.post0,multidict==5.1.0,\
-                    attrs==21.2.0,async-timeout==3.0.1,chardet==4.0.0,idna==3.2,\
-                        typing-extensions==3.10.0.0,yarl==1.6.3,Plyer',
+                'requirements': 'pygame==2.0.1,pygame-menu==4.1.3,urllib3==1.24.3,Plyer==2.0.0,typing-extensions==3.10.0.0',
                 'sdk-dir': '../android-sdk',
                 'ndk-dir': '../android-ndk-r19c',
                 'presplash': 'assets/images/presplash.png',

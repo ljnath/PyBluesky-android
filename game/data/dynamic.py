@@ -14,6 +14,10 @@ class DynamicData():
     """
     def __init__(self):
         self.__static = StaticData()
+        self.__game_surface = None
+        self.__main_menu = None
+        self.__game_clock = None
+        self.__pause_menu = None
         self.__collision_sound = Sound(self.__static.game_sound.get('collision'))
         self.__levelup_sound = Sound(self.__static.game_sound.get('levelup'))
         self.__shoot_sound = Sound(self.__static.game_sound.get('shoot'))
@@ -24,7 +28,7 @@ class DynamicData():
         self.__all_sprites = Group()
         self.__bullets = Group()
         self.__sam_missiles = Group()
-        self.__noammo_sprite = None
+        self.__no_ammo_sprite = None
         self.__update_available = False
         self.__replay = True
         self.__exit = False
@@ -114,12 +118,12 @@ class DynamicData():
         self.__ammo = value if value <= self.__static.max_ammo else self.__static.max_ammo
 
     @property
-    def noammo_sprite(self):
-        return self.__noammo_sprite
+    def no_ammo_sprite(self):
+        return self.__no_ammo_sprite
 
-    @noammo_sprite.setter
-    def noammo_sprite(self, value):
-        self.__noammo_sprite = value
+    @no_ammo_sprite.setter
+    def no_ammo_sprite(self, value):
+        self.__no_ammo_sprite = value
 
     @property
     def game_level(self):
@@ -215,3 +219,35 @@ class DynamicData():
     @update_url.setter
     def update_url(self, value):
         self.__update_url = value
+
+    @property
+    def game_surface(self):
+        return self.__game_surface
+
+    @game_surface.setter
+    def game_surface(self, value):
+        self.__game_surface = value
+
+    @property
+    def main_menu(self):
+        return self.__main_menu
+
+    @main_menu.setter
+    def main_menu(self, value):
+        self.__main_menu = value
+
+    @property
+    def pause_menu(self):
+        return self.__pause_menu
+
+    @pause_menu.setter
+    def pause_menu(self, value):
+        self.__pause_menu = value
+
+    @property
+    def game_clock(self):
+        return self.__game_clock
+
+    @game_clock.setter
+    def game_clock(self, value):
+        self.__game_clock = value

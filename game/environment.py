@@ -1,24 +1,14 @@
 import random
+from typing import Tuple
 
 from pygame import image
-from pygame.locals import (
-    MOUSEMOTION,
-    MOUSEBUTTONDOWN,
-    MOUSEBUTTONUP,
-    FULLSCREEN,
-    QUIT,
-    RLEACCEL,
-    SRCALPHA,
-    VIDEORESIZE,
-    KEYDOWN,
-    TEXTINPUT
-)
+from pygame.locals import (  # importing here to avoid reimporting in all the sub modules
+    FULLSCREEN, KEYDOWN, MOUSEBUTTONDOWN, MOUSEBUTTONUP, QUIT, RLEACCEL,
+    SRCALPHA, TEXTINPUT, VIDEORESIZE)
 
 from game.common.singleton import Singleton
 from game.data.dynamic import DynamicData
 from game.data.static import StaticData
-
-# importing here to avoid reimporting in all the sub modules
 
 
 class GameEnvironment(metaclass=Singleton):
@@ -28,17 +18,36 @@ class GameEnvironment(metaclass=Singleton):
         self.__static_data = StaticData()
         self.__dynamic_data = DynamicData()
 
-    def get_random_point_on_right(self):
-        pos_x = random.randint(self.__static_data.screen_width + 20, self.__static_data.screen_width + 100)     # generating random x position
-        pos_y = random.randint(0, self.__static_data.screen_height)                                             # generating random y position
+    def get_random_point_on_right(self) -> Tuple[int, int]:
+        """
+        Method to get a random point on the right of the screen
+        The X-pos is created somewhere between 20 to 100 px from the extreme right
+        Y-pos can be anywhere along the height of the screen
+
+        :return: random position as tuple
+        """
+        pos_x = random.randint(self.__static_data.screen_width + 20, self.__static_data.screen_width + 100)
+        pos_y = random.randint(0, self.__static_data.screen_height)
         return (pos_x, pos_y)
 
-    def get_random_point_on_top(self):
-        pos_x = random.randint(0, self.__static_data.screen_width)                      # generating random x position
-        pos_y = random.randint(10, 20)                                                  # generating random y position
+    def get_random_point_on_top(self) -> Tuple[int, int]:
+        """
+        Method to get a random point on top of the screen
+        X-pos can be anywhere along the width of the screen, while the Y-pos should be around 5 to 10 pixel from the screen height
+        No point of creating point too high as it will not be visible in the screen
+
+        :return: random position as tuple
+        """
+        pos_x = random.randint(0, self.__static_data.screen_width)
+        pos_y = random.randint(5, 15)
         return (pos_x, pos_y * -1)
 
-    def get_image_size(self, image_file):
+    def get_image_size(self, image_file: str) -> Tuple[int, int]:
+        """
+        Method to get the width and height of a image file in px
+        :param image_file: input file whose size needs to be determined
+        :return: width and height as a tuple
+        """
         image_surf = image.load(image_file)
         return (image_surf.get_width(), image_surf.get_height())
 
@@ -80,10 +89,6 @@ class GameEnvironment(metaclass=Singleton):
     @property
     def MOUSEBUTTONDOWN(self):
         return MOUSEBUTTONDOWN
-
-    @property
-    def MOUSEMOTION(self):
-        return MOUSEMOTION
 
     @property
     def VIDEORESIZE(self):

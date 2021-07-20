@@ -34,14 +34,14 @@ class Jet(sprite.Sprite):
         self.auto_move((projected_x, projected_y))
 
     def auto_move(self, position):
-        speed = 7
+        speed = 9
         dx = position[0] - self.rect.x                                                                              # calculating x-coordinate difference of mouse and current jet position
         dy = position[1] - self.rect.y                                                                              # caluclating y-coordinate difference of mouse and current jet position
         if (dx >= -speed and dx <= speed) and (dy >= -speed and dy <= speed):                                       # jet will not move if the delta is less then its speed
             return
         angle = math.atan2(dy, dx)                                                                                  # calculating angle
-        self.rect.x += speed * math.cos(angle)                                                               # moving the x-coordinate of jet towards the mouse cursor
-        self.rect.y += speed * math.sin(angle)                                                               # moving the y-coordinate of jet towards the mouse cursor
+        self.rect.x += speed * math.cos(angle)                                                                      # moving the x-coordinate of jet towards the mouse cursor
+        self.rect.y += speed * math.sin(angle)                                                                      # moving the y-coordinate of jet towards the mouse cursor
         self.__maintain_boundary()
 
     def shoot(self):
@@ -54,7 +54,7 @@ class Jet(sprite.Sprite):
             game_env.dynamic.ammo -= 1
             game_env.dynamic.bullets_fired += 1
         else:
-            game_env.dynamic.all_sprites.add(game_env.dynamic.noammo_sprite)                    # show noammo sprite
+            game_env.dynamic.all_sprites.add(game_env.dynamic.no_ammo_sprite)               # displaying the hint sprite
 
     def __maintain_boundary(self):
         game_env = GameEnvironment()

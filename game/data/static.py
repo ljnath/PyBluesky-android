@@ -1,4 +1,7 @@
-from pygame import display
+
+from pathlib import Path
+
+import urllib3
 from android.storage import app_storage_path
 
 
@@ -6,15 +9,16 @@ class StaticData():
     """ Class which holds all the static game values
     """
     def __init__(self):
-        self.__display_info = display.Info()                        # get current display information
+        # initializing urllib3.PoolManager with default timeout of 3s and pool count as 2
+        self.__http_pool_manager = urllib3.PoolManager(num_pools=2, timeout=3)
 
     @property
-    def name(self):
+    def app_name(self):
         return 'PyBluesky'
 
     @property
-    def version(self):
-        return '1.0.1'
+    def app_version(self):
+        return '1.0.0'
 
     @property
     def android_app_directory(self):
@@ -51,12 +55,12 @@ class StaticData():
     @property
     def screen_width(self):
         # setting fixed screen width for scaling
-        return 1280
+        return 1920
 
     @property
     def screen_height(self):
         # setting fixed screen height for scaling
-        return 720
+        return 1080
 
     @property
     def text_default_color(self):
@@ -69,6 +73,13 @@ class StaticData():
     @property
     def game_font(self):
         return f'{self.fonts_asset_directory}/arcade.ttf'               # game font file path
+
+    @property
+    def game_font_path(self) -> str:
+        """
+        property to get the pathlib Path to the game font file
+        """
+        return str(Path(self.game_font))
 
     @property
     def clouds(self):
@@ -130,11 +141,11 @@ class StaticData():
         return 1                            # number of missiles to be spawned per seconds
 
     @property
-    def background_default(self):
+    def background_greenish_blue(self):
         return (208, 244, 247)              # skyblue color
 
     @property
-    def background_special(self):
+    def background_skyblue(self):
         return (196, 226, 255)              # pale skyblue
 
     @property
@@ -155,8 +166,12 @@ class StaticData():
 
     @property
     def score_sprite_width(self):
-        return 40
-    
+        return 60
+
+    @property
+    def http_pool_manager(self):
+        return self.__http_pool_manager
+
     @property
     def game_sound(self):
         return {

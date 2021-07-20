@@ -1,8 +1,6 @@
-import asyncio
-from json import loads
+from json import dumps, loads
 from time import time
 
-import aiohttp
 from game.environment import GameEnvironment
 from game.handlers import Handlers
 from game.handlers.serialize import SerializeHandler
@@ -17,54 +15,64 @@ class NetworkHandler(Handlers):
         self.__api_endpoint = 'https://app.ljnath.com/pybluesky/'
         self.__serialize_handler = SerializeHandler(game_env.static.offline_score_file)
 
-    async def check_game_update(self):
+    def check_game_update(self):
+        """
+        method to check for new game update
+        """
         try:
             game_env = GameEnvironment()
             get_parameters = {
                 'action': 'getUpdate',
                 'apiKey': self.__api_key,
                 'platform': 'android'
-                }
-            async with aiohttp.ClientSession() as session:
-                async with session.get(self.__api_endpoint, params=get_parameters, ssl=False, timeout=aiohttp.ClientTimeout(total=10)) as response:
-                    if response.status != 200:
-                        raise Exception()
-                    json_response = loads(await response.text())
-                    if json_response['version'] != game_env.static.version:
-                        game_env.dynamic.update_available = True
-                        game_env.dynamic.update_url = json_response['url']
-                        self.log('New game version {} detected'.format(json_response['version']))
+            }
+            response = game_env.static.http_pool_manager.request('GET', self.__api_endpoint, fields=get_parameters)
+            if response.status == 200:
+                json_response = loads(response.data)
+                if json_response['version'] != game_env.static.version:
+                    game_env.dynamic.update_available = True
+                    game_env.dynamic.update_url = json_response['url']
+                    self.log(f'New game version {json_response["version"]} detected')
         except Exception:
             self.log('Failed to check for game update')
-        await self.submit_result(only_sync=True)
 
-    async def get_leaders(self):
+    def get_leaders(self) -> dict:
+        """
+        method to get the current leaders from remote server
+        :return leaders : leaders as dict object
+        """
         leaders = {}
         try:
+            game_env = GameEnvironment()
             get_parameters = {
                 'action': 'getTopScores',
                 'apiKey': self.__api_key,
                 'platform': 'android'
-                }
-            async with aiohttp.ClientSession() as session:
-                async with session.get(self.__api_endpoint, params=get_parameters, ssl=False, timeout=aiohttp.ClientTimeout(total=15)) as response:
-                    if response.status != 200:
-                        raise Exception()
-                    leaders = loads(await response.text())
+            }
+            response = game_env.static.http_pool_manager.request('GET', self.__api_endpoint, fields=get_parameters)
+            if response.status == 200:
+                leaders = loads(response.data)
+
         except Exception:
             self.log('Failed to get game leaders from remote server')
         finally:
             return leaders
 
-    async def submit_result(self, only_sync=False):
+    def submit_result(self, only_sync=False):
+        """
+        method to submit score to remote server. If the submission of scores fails, then the scores are stored in the device and in the next invocation of this method, those scores are re-submitted
+        :param only_sync : bool value when false the current score is submitted else only the offline scores are submitted
+        """
         payloads = []
-        game_env = GameEnvironment()
+        # reading offline scores which needs to be submitted
         deserialized_object = self.__serialize_handler.deserialize()
         if deserialized_object:
             payloads = list(deserialized_object)
 
-        build = autoclass("android.os.Build")
+        # when new score needs to be submitted as well
         if not only_sync:
+            game_env = GameEnvironment()
+            build = autoclass("android.os.Build")
             payload = {
                 'apiKey': self.__api_key,
                 'name': f'{game_env.dynamic.player_name} ({build.MODEL})',
@@ -76,29 +84,30 @@ class NetworkHandler(Handlers):
             }
             payloads.append(payload)
 
-        unprocessed_payloads = []
-        async with aiohttp.ClientSession() as session:
-            put_tasks = [asyncio.ensure_future(self.__post_results(session, payload)) for payload in payloads]
-            await asyncio.gather(*put_tasks, return_exceptions=False)
+        unsubmitted_scores = []
+        for payload in payloads:
+            if not self.__submit_result(payload):
+                payload['apiKey'] = ''
+                unsubmitted_scores.append(payload)
+                self.log('Failed to submit game scrore: score={}, name={}, level={}'.format(payload.get('score'), payload.get('name'), payload.get('level')))
+            else:
+                self.log('Successfully submitted result: score={}, name={}, level={}'.format(payload.get('score'), payload.get('name'), payload.get('level')))
+        self.__serialize_handler.serialize(unsubmitted_scores)
 
-            for task, payload in zip(put_tasks, payloads):
-                if task._result:
-                    self.log('Successfully submitted result: score={}, name={}, level={}'.format(payload.get('score'), payload.get('name'), payload.get('level')))
-                else:
-                    payload.update({'apiKey': ''})
-                    unprocessed_payloads.append(payload)
-                    self.log('Failed to submit game scrore: score={}, name={}, level={}'.format(payload.get('score'), payload.get('name'), payload.get('level')))
-
-        self.__serialize_handler.serialize(unprocessed_payloads)
-
-    async def __post_results(self, session, payload):
-        result = True
+    def __submit_result(self, payload: dict) -> bool:
+        """
+        private method to make api call for score submission
+        :param payload : api payload as a dict object
+        :return status : bool value indicating the status of the api call
+        """
+        status = False
         try:
+            game_env = GameEnvironment()
             payload['apiKey'] = self.__api_key
-            async with session.put(self.__api_endpoint, json=payload, ssl=False, timeout=aiohttp.ClientTimeout(total=30)) as response:
-                if response.status != 201:
-                    result = False
+            response = game_env.static.http_pool_manager.request('PUT', self.__api_endpoint, body=dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'})
+            if response.status == 201:
+                status = True
         except Exception:
-            result = False
+            status = False
         finally:
-            return result
+            return status
