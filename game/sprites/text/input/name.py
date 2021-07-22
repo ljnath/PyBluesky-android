@@ -1,12 +1,12 @@
 """
 Menu layout
-┌────────────────────┐
-│ ================== │
-│     USER INPUT     │
-│ ================== │
-|                    |
-│  CLEAR         OK  │
-└────────────────────┘
++----------------------------------------+
+|              === HINT ===              |
+|              <user-input>              |
+|              ============              |
+|                                        |
+|            CLEAR          OK           |
++----------------------------------------+
 """
 import re
 
@@ -70,7 +70,6 @@ class NameInputText(Text):
         self.__ok_text.rect.update(pos_x, pos_y, self.__ok_text.surf.get_width(), self.__max_surface_height)
         self.__ok_text_selected.rect.update(pos_x, pos_y, self.__ok_text.surf.get_width(), self.__max_surface_height)
 
-
     def __render(self):
         self.__username = Text(self.__player_name, self.__font_size)
         # creating a single surface for all the text sprites, meuu layout is shown above
@@ -81,10 +80,10 @@ class NameInputText(Text):
         self.surf.blit(self.__username.surf, (self.__max_surface_width / 2 - self.__username.surf.get_width() / 2, self.__max_surface_height))
         self.surf.blit(self.__footer.surf, (self.__max_surface_width / 2 - self.__footer.surf.get_width() / 2, self.__max_surface_height * 2))    # *3 will be skipped to introduce a seperator
 
-        self.surf.blit(self.__clear_text_selected.surf if self.__user_choice == Choice.CLEAR else self.__clear_text.surf,                
-                        (0, self.__max_surface_height * 4))
+        self.surf.blit(self.__clear_text_selected.surf if self.__user_choice == Choice.CLEAR else self.__clear_text.surf,
+                       (0, self.__max_surface_height * 4))
         self.surf.blit(self.__ok_text_selected.surf if self.__user_choice == Choice.OK else self.__ok_text.surf,
-                        (self.__max_surface_width - self.__ok_text.surf.get_width(), self.__max_surface_height * 4))
+                       (self.__max_surface_width - self.__ok_text.surf.get_width(), self.__max_surface_height * 4))
 
     def update(self, key):
         game_env = GameEnvironment()
@@ -105,7 +104,7 @@ class NameInputText(Text):
         elif self.__clear_text.rect.collidepoint(position) or self.__clear_text_selected.rect.collidepoint(position):
             if self.__user_choice == Choice.CLEAR:
                 self.__game_env.dynamic.user_choice = Choice.CLEAR
-                self.__player_name = ''                
+                self.__player_name = ''
             self.__user_choice = Choice.CLEAR
             self.__render()
         elif self.__ok_text.rect.collidepoint(position) or self.__ok_text_selected.rect.collidepoint(position):
@@ -116,9 +115,8 @@ class NameInputText(Text):
                     self.__game_env.dynamic.player_name = self.__player_name.strip()
             self.__user_choice = Choice.OK
             self.__render()
-                
+
         if start_keyboard:
             start_text_input()
         else:
             stop_text_input()
-            

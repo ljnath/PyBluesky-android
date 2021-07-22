@@ -23,5 +23,5 @@ class ReplayChoiceText(ChoiceText):
             if self.user_choice == Choice.NO:
                 self.__game_env.dynamic.user_choice = Choice.NO
             self.user_choice = Choice.NO
-            
+
         self.render()

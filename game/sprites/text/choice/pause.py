@@ -2,6 +2,7 @@ from game.data.enums import Choice
 from game.environment import GameEnvironment
 from game.sprites.text.choice import ChoiceText
 
+
 class PauseChoiceText(ChoiceText):
     """ PauseTextMenu class extended from ChoiceText class.
         It creates the game pause menu with confirmation sprite
@@ -22,5 +23,5 @@ class PauseChoiceText(ChoiceText):
             if self.user_choice == Choice.NO:
                 self.__game_env.dynamic.user_choice = Choice.NO
             self.user_choice = Choice.NO
-            
+
         self.render()

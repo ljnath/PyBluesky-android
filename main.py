@@ -313,7 +313,7 @@ def play():
         # Look at every events in the pygame.event queue
         for event in pygame.event.get():
 
-             # mouse based interaction to simulate finger based interaction
+            # mouse based interaction to simulate finger based interaction
             if event.type == game_env.MOUSEBUTTONDOWN:
                 # handling single finger only for now
                 if event.button == 1:
@@ -357,7 +357,7 @@ def play():
             elif event.type == ADD_CLOUD:
                 if game_pause:
                     continue
-                
+
                 # removing the hint spite after 3s of gameplay
                 if game_env.dynamic.game_playtime == 2:
                     game_env.dynamic.all_sprites.remove(gameplay_hint_sprite)
