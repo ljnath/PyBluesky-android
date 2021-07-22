@@ -1,20 +1,22 @@
 from enum import Enum
 
 
-class StartChoice(Enum):
-    """ StartChoice enumerator which holds the game start choice (start or exit) for the game
+class Choice(Enum):
     """
-    START = 1,
-    EXIT = 2
+    Game menu choice enumerator
+    """
+    YES = 'YES'
+    NO = 'NO'
+    UNSELECTED = 'UNSELECTED'
+    OK = 'OK'
+    CLEAR = 'CLEAR'
 
 
 class Screen(Enum):
-    """ TitleScreen enumerator which holds the available title screens
     """
-    GAME_MENU = 0,
-    HELP = 1,
-    LEADERBOARD = 2
-    REPLAY_MENU = 3
-    NAME_INPUT = 4
-    EXIT_MENU = 5
-    GAME_SCREEN = 6
+    Game screen enumerator
+    """
+    GAMEPLAY = 0        # main game play screen
+    PAUSE_MENU = 1      # pause menu user player hits [BACK]
+    REPLAY_MENU = 2     # replay menu when gameover
+    NAME_INPUT = 3      # player name input screen

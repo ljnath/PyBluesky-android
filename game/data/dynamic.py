@@ -2,11 +2,10 @@
 import os
 import re
 
+from game.data.enums import Choice, Screen
+from game.data.static import StaticData
 from pygame.mixer import Sound
 from pygame.sprite import Group
-
-from game.data.enums import Screen, StartChoice
-from game.data.static import StaticData
 
 
 class DynamicData():
@@ -17,21 +16,18 @@ class DynamicData():
         self.__game_surface = None
         self.__main_menu = None
         self.__game_clock = None
-        self.__pause_menu = None
+        self.__user_choice = Choice.UNSELECTED
         self.__collision_sound = Sound(self.__static.game_sound.get('collision'))
         self.__levelup_sound = Sound(self.__static.game_sound.get('levelup'))
         self.__shoot_sound = Sound(self.__static.game_sound.get('shoot'))
         self.__hit_sound = Sound(self.__static.game_sound.get('hit'))
         self.__powerup_sound = Sound(self.__static.game_sound.get('powerup'))
         self.__samfire_sound = Sound(self.__static.game_sound.get('samfire'))
-        self.__game_start_choice = StartChoice.START
         self.__all_sprites = Group()
         self.__bullets = Group()
         self.__sam_missiles = Group()
         self.__no_ammo_sprite = None
         self.__update_available = False
-        self.__replay = True
-        self.__exit = False
         self.__update_url = None
         self.__player_name = ''
 
@@ -41,7 +37,7 @@ class DynamicData():
                 name = file_reader.read().strip()[: self.__static.name_length]
                 self.__player_name = name if name and re.match(r'[a-zA-Z0-9@. ]', name) else ''
 
-        self.__active_screen = Screen.NAME_INPUT if not self.__player_name else Screen.GAME_MENU
+        self.__active_screen = Screen.NAME_INPUT if not self.__player_name else Screen.GAMEPLAY
         self.load_defaults()
 
     def load_defaults(self):
@@ -142,11 +138,11 @@ class DynamicData():
         self.__update_available = value
 
     @property
-    def active_screen(self):
+    def active_screen(self) -> Screen:
         return self.__active_screen
 
     @active_screen.setter
-    def active_screen(self, value):
+    def active_screen(self, value: Screen):
         self.__active_screen = value
 
     @property
@@ -164,22 +160,6 @@ class DynamicData():
     @game_playtime.setter
     def game_playtime(self, value):
         self.__game_playtime = value
-
-    @property
-    def replay(self):
-        return self.__replay
-
-    @replay.setter
-    def replay(self, value):
-        self.__replay = value
-
-    @property
-    def exit(self):
-        return self.__exit
-
-    @exit.setter
-    def exit(self, value):
-        self.__exit = value
 
     @property
     def player_name(self):
@@ -237,17 +217,17 @@ class DynamicData():
         self.__main_menu = value
 
     @property
-    def pause_menu(self):
-        return self.__pause_menu
-
-    @pause_menu.setter
-    def pause_menu(self, value):
-        self.__pause_menu = value
-
-    @property
     def game_clock(self):
         return self.__game_clock
 
     @game_clock.setter
     def game_clock(self, value):
         self.__game_clock = value
+
+    @property
+    def user_choice(self) -> Choice:
+        return self.__user_choice
+
+    @user_choice.setter
+    def user_choice(self, value: Choice):
+        self.__user_choice = value
