@@ -16,6 +16,7 @@ class DynamicData():
         self.__game_surface = None
         self.__main_menu = None
         self.__game_clock = None
+        self.__jet_health = 100
         self.__user_choice = Choice.UNSELECTED
         self.__collision_sound = Sound(self.__static.game_sound.get('collision'))
         self.__levelup_sound = Sound(self.__static.game_sound.get('levelup'))
@@ -42,6 +43,7 @@ class DynamicData():
 
     def load_defaults(self):
         self.__ammo = 100
+        self.__jet_health = 100
         self.__game_level = 1
         self.__game_score = 0
         self.__game_playtime = 0
@@ -231,3 +233,11 @@ class DynamicData():
     @user_choice.setter
     def user_choice(self, value: Choice):
         self.__user_choice = value
+
+    @property
+    def jet_health(self) -> int:
+        return self.__jet_health
+
+    @jet_health.setter
+    def jet_health(self, value: int):
+        self.__jet_health = value

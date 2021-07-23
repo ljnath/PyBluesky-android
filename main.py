@@ -127,7 +127,7 @@ def initialize() -> None:
     # setting main game background music
     # lopping the main game music and setting game volume
     pygame.mixer.music.load(game_env.static.game_sound.get('music'))
-    # pygame.mixer.music.play(loops=-1) #TODO enable  music
+    pygame.mixer.music.play(loops=-1)
     pygame.mixer.music.set_volume(.2)
 
     # settings flags to create screen in fullscreen, use HW-accleration and DoubleBuffer, also adding flag to resize the game
@@ -146,14 +146,14 @@ def initialize() -> None:
     check_update()
     update_leaderboard()
 
+    # cleanup bit, hiding or disabling features that we don't need
+    pygame.mouse.set_visible(False)
+
     # creating an instance of the main gamemenu
     game_env.dynamic.main_menu = MainMenu().Menu
 
     # showing the main gamemenu
     show_menu()
-
-    # cleanup bit, hiding or disabling features that we don't need
-    pygame.mouse.set_visible(False)
 
 
 def show_menu() -> None:
@@ -259,7 +259,6 @@ def play():
     game_env.dynamic.main_menu.disable()
     game_env.dynamic.main_menu.full_reset()
 
-    # TODO - check and delete
     # blocking all the undesired events
     pygame.event.set_blocked(pygame.FINGERMOTION)
     pygame.event.set_blocked(pygame.FINGERUP)
@@ -288,6 +287,7 @@ def play():
         game_started = True                                                                 # game has started
         game_over = False                                                                    # game is not over yet !
         star_shown = False
+        game_env.dynamic.jet_health = 100
         game_env.dynamic.active_screen = Screen.GAMEPLAY                                    # setting GAMEPLAY as the active screen becuase player has started the game
         background_color = game_env.static.background_greenish_blue                         # setting the game backgroud color
 
@@ -313,8 +313,13 @@ def play():
         # Look at every events in the pygame.event queue
         for event in pygame.event.get():
 
+            # checking for VIDEORESIZE event, this event is used to prevent auto-rotate in android device
+            # if any change in the screensize is detected, then the orienatation is forcefully re-applied
+            if event.type == game_env.VIDEORESIZE:
+                orientation.set_landscape(reverse=False)
+
             # mouse based interaction to simulate finger based interaction
-            if event.type == game_env.MOUSEBUTTONDOWN:
+            elif event.type == game_env.MOUSEBUTTONDOWN:
                 # handling single finger only for now
                 if event.button == 1:
                     # handling interaction oin the NAME-INPUT menu like button click and show/hide of keyboard
@@ -332,11 +337,6 @@ def play():
                     # jet can shoot at use touch and when the game is running
                     elif game_started and not game_over:
                         jet.shoot()
-
-            # checking for VIDEORESIZE event, this event is used to prevent auto-rotate in android device
-            # if any change in the screensize is detected, then the orienatation is forcefully re-applied
-            elif event.type == game_env.VIDEORESIZE:
-                orientation.set_landscape(reverse=False)
 
             # handling keydown event to show the pause menu
             elif event.type == game_env.KEYDOWN:
@@ -437,19 +437,28 @@ def play():
         if game_started and not game_over:
             # enemy missile or sam-missile hit
             if pygame.sprite.spritecollideany(jet, missiles) or pygame.sprite.spritecollideany(jet, game_env.dynamic.sam_missiles):
-                game_over = True                                                                                 # setting game_over to true to prevent new missiles from spawning
-                jet.kill()                                                                                      # killing the jet
-                [sam_missile.kill() for sam_missile in game_env.dynamic.sam_missiles]                           # killing the SAM missile
-                game_env.dynamic.all_sprites.remove(game_env.dynamic.no_ammo_sprite)
-                pygame.event.set_blocked(ADD_MISSILE)                                                           # blocking event to add any more missile in the screen due to game_over
-                pygame.event.set_blocked(ADD_SAM_LAUNCHER)                                                      # blocking event to add any more sam launcher in the screen due to game_over
+                [s.kill() for s in missiles.sprites()]
+                missiles.empty()
+                jet.rect.x = 10
+                jet.rect.y = game_env.static.screen_height / 2
+                game_env.dynamic.jet_health -= 20
                 game_env.dynamic.collision_sound.play()
-                vibrator.vibrate(1)                                                                             # vibrating device for 1s on game-over
-                dynamic_sprite = ReplayChoiceText()
-                game_env.dynamic.all_sprites.add(dynamic_sprite)
-                game_env.dynamic.active_screen = Screen.REPLAY_MENU
-                game_env.dynamic.user_choice = Choice.UNSELECTED
-                submit_result()                                                                                 # submit game score
+                
+                if game_env.dynamic.jet_health > 0:
+                    vibrator.vibrate(0.5)
+                else:
+                    game_over = True                                                                                # setting game_over to true to prevent new missiles from spawning
+                    jet.kill()                                                                                      # killing the jet
+                    [sam_missile.kill() for sam_missile in game_env.dynamic.sam_missiles]                           # killing the SAM missile
+                    game_env.dynamic.all_sprites.remove(game_env.dynamic.no_ammo_sprite)
+                    pygame.event.set_blocked(ADD_MISSILE)                                                           # blocking event to add any more missile in the screen due to game_over
+                    pygame.event.set_blocked(ADD_SAM_LAUNCHER)                                                      # blocking event to add any more sam launcher in the screen due to game_over
+                    vibrator.vibrate(1)                                                                             # vibrating device for 1s on game-over
+                    dynamic_sprite = ReplayChoiceText()
+                    game_env.dynamic.all_sprites.add(dynamic_sprite)
+                    game_env.dynamic.active_screen = Screen.REPLAY_MENU
+                    game_env.dynamic.user_choice = Choice.UNSELECTED
+                    submit_result()                                                                                 # submit game score
 
             # shoot down an enemy missile
             collision = pygame.sprite.groupcollide(missiles, game_env.dynamic.bullets, True, True)      # checking for collision between bullets and missiles, killing each one of them on collision
@@ -475,23 +484,21 @@ def play():
                 # acceleration_sensor_values is a tuple of (x, y, z) sensor data
                 jet.update(accelerometer.acceleration)
 
+        if not game_pause:
+            if game_started:
+                vegetations.update()                                                                        # vegetations will move only after the game starts
+
+            game_env.dynamic.bullets.update()                                                               # updating the position of bullets
+            game_env.dynamic.sam_missiles.update()                                                          # updating the position of missiles launched by sam-launcher
+            missiles.update()                                                                               # updating the position of the enemy missiles
+            deactivated_missiles.update()                                                                   # updating the position of the deactivated enemy missiles
+            clouds.update()                                                                                 # updating the position of the clouds
+            stars.update()                                                                                  # updating the position of the stars
+            samlaunchers.update((jet.rect.x + jet.rect.width / 2, jet.rect.y + jet.rect.height))            # updating the position of the sam-launcher
+            scoretext_sprite.update()                                                                       # updating the game scoretext sprite which includes gameplay time, score, etc.
+
         pygame.display.flip()                                                                           # updating display to the screen
         game_env.dynamic.game_clock.tick(game_env.static.fps)                                           # to maintain constant FPS of the game
-
-        if game_pause:
-            continue
-
-        if game_started:
-            vegetations.update()                                                                        # vegetations will move only after the game starts
-
-        game_env.dynamic.bullets.update()                                                               # updating the position of bullets
-        game_env.dynamic.sam_missiles.update()                                                          # updating the position of missiles launched by sam-launcher
-        missiles.update()                                                                               # updating the position of the enemy missiles
-        deactivated_missiles.update()                                                                   # updating the position of the deactivated enemy missiles
-        clouds.update()                                                                                 # updating the position of the clouds
-        stars.update()                                                                                  # updating the position of the stars
-        samlaunchers.update((jet.rect.x + jet.rect.width / 2, jet.rect.y + jet.rect.height))            # updating the position of the sam-launcher
-        scoretext_sprite.update()                                                                       # updating the game scoretext sprite which includes gameplay time, score, etc.
 
     pygame.mixer.music.stop()                                                                           # stopping game music
     pygame.mixer.quit()                                                                                 # stopping game sound mixer

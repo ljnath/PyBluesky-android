@@ -51,7 +51,7 @@ setup(
             'apk': {
                 'ignore-setup-py': None,
                 # 'release': None,
-                'arch': 'arm64-v8a',
+                'arch': 'armeabi-v7a',
                 'package': 'com.ljnath.pybluesky',
                 'requirements': 'pygame==2.0.1,pygame-menu==4.1.3,urllib3==1.24.3,Plyer==2.0.0,typing-extensions==3.10.0.0',
                 'sdk-dir': '../android-sdk',

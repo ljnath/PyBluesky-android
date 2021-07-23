@@ -4,7 +4,7 @@
 # variables used for building project
 ACTIVITY_NAME   = org.kivy.android.PythonActivity
 ADB				= adb
-ARCHITECTURE    = arm64-v8a
+ARCHITECTURE    = armeabi-v7a
 APK_NAME        = PyBluesky
 PACKAGE_NAME    = com.ljnath.pybluesky
 PYTHON			= python

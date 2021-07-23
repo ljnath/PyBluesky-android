@@ -34,7 +34,7 @@ class Jet(sprite.Sprite):
         self.auto_move((projected_x, projected_y))
 
     def auto_move(self, position):
-        speed = 9
+        speed = 12
         dx = position[0] - self.rect.x                                                                              # calculating x-coordinate difference of mouse and current jet position
         dy = position[1] - self.rect.y                                                                              # caluclating y-coordinate difference of mouse and current jet position
         if (dx >= -speed and dx <= speed) and (dy >= -speed and dy <= speed):                                       # jet will not move if the delta is less then its speed
@@ -47,7 +47,7 @@ class Jet(sprite.Sprite):
     def shoot(self):
         game_env = GameEnvironment()
         if game_env.dynamic.ammo > 0:
-            bullet = Bullet(self.rect.x + self.rect.width + 10, self.rect.y + 22)           # create a bullet where the jet is located
+            bullet = Bullet(self.rect.x + self.rect.width + 8, self.rect.y + 30)           # create a bullet where the jet is located
             game_env.dynamic.bullets.add(bullet)                                            # add the bullet to bullet group
             game_env.dynamic.all_sprites.add(bullet)                                        # add the bullet tp all_sprites
             game_env.dynamic.shoot_sound.play()                                             # play shooting sound
