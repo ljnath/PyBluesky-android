@@ -60,8 +60,8 @@ class Jet(sprite.Sprite):
         game_env = GameEnvironment()
         if self.rect.left < 0:
             self.rect.left = 0                                                                  # if the jet has moved left and have crossed the screen; the left position is set to 0 as it is the boundary
-        if self.rect.top < game_env.static.score_sprite_width:
-            self.rect.top = game_env.static.score_sprite_width                                  # jet cannot move above the scrore sprite
+        if self.rect.top < game_env.static.score_sprite_size:
+            self.rect.top = game_env.static.score_sprite_size                                  # jet cannot move above the scrore sprite
         if self.rect.right > game_env.static.screen_width:
             self.rect.right = game_env.static.screen_width                                      # if the jet has moved right and have crossed the screen; the right position is set to screen width as it is the boundary
         if self.rect.bottom > game_env.static.screen_height - game_env.vegetation_size[1] / 2:

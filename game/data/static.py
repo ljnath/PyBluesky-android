@@ -165,7 +165,7 @@ class StaticData():
         return 12
 
     @property
-    def score_sprite_width(self):
+    def score_sprite_size(self):
         return 60
 
     @property

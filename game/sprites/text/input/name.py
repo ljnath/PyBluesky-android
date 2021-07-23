@@ -94,7 +94,6 @@ class NameInputText(Text):
         self.__render()
 
     def check_input(self, position):
-        print(position)
         start_keyboard = False
 
         if self.__header.rect.collidepoint(position) or self.__username.rect.collidepoint(position) or self.__footer.rect.collidepoint(position):

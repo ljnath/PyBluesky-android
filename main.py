@@ -272,7 +272,7 @@ def play():
         """
         inner method to start the gameplay
         """
-        nonlocal game_over, jet, star_shown, game_started, ADD_MISSILE, ADD_SAM_LAUNCHER, background_color
+        nonlocal game_over, game_pause, jet, star_shown, game_started, ADD_MISSILE, ADD_SAM_LAUNCHER, background_color
 
         # allowing sprite creation event for automatic sprite creation
         pygame.event.set_allowed(ADD_MISSILE)
@@ -443,7 +443,7 @@ def play():
                 jet.rect.y = game_env.static.screen_height / 2
                 game_env.dynamic.jet_health -= 20
                 game_env.dynamic.collision_sound.play()
-                
+
                 if game_env.dynamic.jet_health > 0:
                     vibrator.vibrate(0.5)
                 else:
@@ -502,6 +502,7 @@ def play():
 
     pygame.mixer.music.stop()                                                                           # stopping game music
     pygame.mixer.quit()                                                                                 # stopping game sound mixer
+    pygame.quit()
     notify_user_of_update()
     exit()
 
