@@ -24,7 +24,7 @@ class Missile(sprite.Sprite):
         pos_y = random.randint(game_env.static.score_sprite_size, game_env.static.screen_height - game_env.vegetation_size[1] / 2)
         self.rect = self.surf.get_rect(center=(pos_x, pos_y))                                                           # create rectange from the missile screen
         self.__activated = True                                                                                         # bad missiles will drop down
-        self.__speed = random.randint(5, 20)                                                                            # generating random speed for the missle
+        self.__speed = random.randint(10, 30)                                                                            # generating random speed for the missle
         boost_factor = game_env.dynamic.game_level // 10                                                                # increasing missile speed by 5% every 10th level
         self.__speed += int(self.__speed * (boost_factor * 5) / 100)
 
@@ -35,7 +35,7 @@ class Missile(sprite.Sprite):
         """
         game_env = GameEnvironment()
         if not self.__activated:
-            self.rect.move_ip(0, 10)                                                            # missile moves down
+            self.rect.move_ip(0, 25)                                                            # missile moves down
         else:
             self.rect.move_ip(-self.__speed, 0)                                                 # missile moves towards jet
 

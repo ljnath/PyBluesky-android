@@ -30,7 +30,7 @@ class Jet(sprite.Sprite):
             return
 
         # maginfy the acceleration value factor to calculate the projected new jet position
-        acceleration_magnify_factor = 50
+        acceleration_magnify_factor = 80
 
         x_axis = acceleration_values[0]
         y_axis = acceleration_values[1]
@@ -47,7 +47,7 @@ class Jet(sprite.Sprite):
         Method to auto move the jet to the target position
         :param position : Target position (x_pos, y_pos) where the jet needs to move to
         """
-        speed = 15
+        speed = 18
         dx = position[0] - self.rect.x                                                                              # calculating x-coordinate difference of mouse and current jet position
         dy = position[1] - self.rect.y                                                                              # caluclating y-coordinate difference of mouse and current jet position
         if (dx >= -speed and dx <= speed) and (dy >= -speed and dy <= speed):                                       # jet will not move if the delta is less then its speed

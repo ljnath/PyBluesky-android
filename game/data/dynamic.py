@@ -1,4 +1,5 @@
 
+import json
 import os
 import re
 
@@ -18,6 +19,7 @@ class DynamicData():
         self.__game_clock = None
         self.__no_ammo_sprite = None
         self.__update_available = False
+        self.__play_background_music = True
         self.__update_url = None
         self.__jet_health = 100
         self.__player_name = ''
@@ -34,9 +36,11 @@ class DynamicData():
 
         # loading the player name from file, name can be max 20 character long
         if os.path.exists(self.__static.player_file):
-            with open(self.__static.player_file) as file_reader:
-                name = file_reader.read().strip()[: self.__static.name_length]
-                self.__player_name = name if name and re.match(r'[a-zA-Z0-9@. ]', name) else ''
+            try:
+                self.__load_config()
+            except Exception:
+                self.__player_name = ''
+                self.__play_background_music = True
 
         self.__active_screen = Screen.NAME_INPUT if not self.__player_name else Screen.GAMEPLAY
         self.load_defaults()
@@ -53,6 +57,26 @@ class DynamicData():
         self.__bullet_fired = 0
         self.__missles_destroyed = 0
         self.__sam_missiles.empty()
+
+    def __load_config(self) -> None:
+        """
+        Method to read and load player config file into class variable
+        """
+        with open(self.__static.player_file) as file_reader:
+            config = json.load(file_reader)
+            self.__play_background_music = config['background_music']
+            name = config['player_name'].strip()[: self.__static.name_length]
+            self.__player_name = name if name and re.match(r'[a-zA-Z0-9@. ]', name) else ''
+
+    def __save_config(self) -> None:
+        """
+        Method to same user config (player-name & music playback) option to file
+        """
+        with open(self.__static.player_file, 'w') as file_handler:
+            config = {'player_name': self.__player_name,
+                      'background_music': self.__play_background_music
+                      }
+            json.dump(config, file_handler)
 
     @property
     def collision_sound(self) -> pygame.mixer.Sound:
@@ -165,9 +189,19 @@ class DynamicData():
     @player_name.setter
     def player_name(self, value: str) -> None:
         self.__player_name = value
-        # saving the player name to file for future reference
-        with open(self.__static.player_file, 'w') as file_writter:
-            file_writter.write(self.__player_name)
+        self.__save_config()
+
+    @property
+    def play_music(self) -> bool:
+        """
+        Property indicating if the background music needs to be played or not
+        """
+        return self.__play_background_music
+
+    @play_music.setter
+    def play_music(self, value: bool) -> None:
+        self.__play_background_music = value
+        self.__save_config()
 
     @property
     def bullets_fired(self) -> int:

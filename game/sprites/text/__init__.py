@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from typing import Tuple
 
 from game.environment import GameEnvironment
@@ -6,7 +5,7 @@ from pygame.font import Font
 from pygame.sprite import Sprite
 
 
-class Text(Sprite, ABC):
+class Text(Sprite):
     """ Text class for create sprite out of text
     """
     def __init__(self, text: str = '', size: int = 0, color: Tuple[int, int, int] = None, pos_x: int = None, pos_y: int = None) -> None:
@@ -57,10 +56,3 @@ class Text(Sprite, ABC):
         elif self.__move_up and self.rect.y + self.rect.height >= self.__game_env.static.screen_height:
             self.__move_up = False
         self.rect.y += speed if self.__move_up else (speed * -1)
-
-    @abstractmethod
-    def update(self) -> None:
-        """
-        Abstract method to update this text
-        """
-        raise NotImplementedError()

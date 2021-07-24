@@ -243,7 +243,7 @@ class StaticData():
         return f'{self.images_asset_directory}/bullet.png'
 
     @property
-    def game_sound(self) -> Dict[str: str]:
+    def game_sound(self) -> Dict[str, str]:
         """
         Absolute path to all the available game sounds
         """

@@ -127,7 +127,8 @@ def initialize() -> None:
     # setting main game background music
     # lopping the main game music and setting game volume
     pygame.mixer.music.load(game_env.static.game_sound.get('music'))
-    pygame.mixer.music.play(loops=-1)
+    if game_env.dynamic.play_music:
+        pygame.mixer.music.play(loops=-1)
     pygame.mixer.music.set_volume(.2)
 
     # settings flags to create screen in fullscreen, use HW-accleration and DoubleBuffer, also adding flag to resize the game
@@ -160,19 +161,18 @@ def show_menu() -> None:
     """
     Function to show the game menu
     """
-
     def add_clouds_in_menu() -> None:
         """
         inner function to add clouds in the menu
         """
-        nonlocal ADD_CLOUD_TO_MENU, sprite_group, game_env, game_title_sprite
+        nonlocal ADD_CLOUD_TO_MENU, sprite_group, game_env, game_title_sprite, current_play_music_choice
 
         # adding the game title sprite in the sprite group for drawing to screen
         sprite_group.add(game_title_sprite)
 
         # checking and looping through the ADD_CLOUD_TO_MENU events only
         # for every event a cloud is created and added to the sprite group
-        for event in pygame.event.get(eventtype=ADD_CLOUD_TO_MENU):
+        if pygame.event.get(eventtype=ADD_CLOUD_TO_MENU):
             sprite_group.add(Cloud())
 
         # drawing the screen backgroud with skyblue color
@@ -184,9 +184,23 @@ def show_menu() -> None:
         # calling update method for each sprite in the sprite group, this will update the cloud position
         sprite_group.update()
 
+        # if music toggle has not changed, no point of start/stop music
+        if current_play_music_choice == game_env.dynamic.play_music:
+            return
+
+        # storing the new music toggle value in current_play_music_choice
+        current_play_music_choice = game_env.dynamic.play_music
+
+        # playing/stopping game music based on user selection
+        if game_env.dynamic.play_music:
+            pygame.mixer.music.play(loops=-1)
+        else:
+            pygame.mixer.music.stop()
+
     # local variables
     game_env = GameEnvironment()
     sprite_group = pygame.sprite.Group()    # sprite group to hold sprites that needs to drawn on the screen
+    current_play_music_choice = game_env.dynamic.play_music
 
     # creating the game title sprite to display the game title in the menu screen
     # sprite will be in the middle of the screen and height will be 100px from top
@@ -201,12 +215,7 @@ def show_menu() -> None:
     if play_button:
         play_button.update_callback(play)
 
-    game_env.dynamic.main_menu.set_onclose(play)
-
     while True:
-
-        # fething and looping though the game events to quit the game incase user hits the 'Exit' menu button
-
         # fetching for QUIT event, exiting game when detected
         if pygame.event.get(eventtype=pygame.QUIT):
             pygame.quit()
@@ -381,7 +390,7 @@ def play():
 
                 if not game_over and game_started:
                     game_env.dynamic.game_playtime += 1                                                                         # increasing playtime by 1s as this event is triggered every second; just reusing existing event instead of recreating a new event
-                    if not star_shown and random.randint(0, 30) % 3 == 0:                                                       # probabity of getting a star is 30%
+                    if not star_shown and not stars and random.randint(0, 30) % 3 == 0:                                         # probabity of getting a star is 30%, star is shown only when the current star is not in screen
                         star = Star()
                         stars.add(star)
                         game_env.dynamic.all_sprites.add(star)

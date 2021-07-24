@@ -12,7 +12,7 @@ class ScoreText(Text):
     """
     def __init__(self):
         game_env = GameEnvironment()
-        Text.__init__(self, text="LEVEL 00 TIME 0 AMMO 0 SCORE 0 HEALTH 0", size=game_env.static.score_sprite_size, color=(103, 103, 103))  # initializing parent class with defautl text and color
+        Text.__init__(self, text="LEVEL: 00 TIME: 0 AMMO: 0 SCORE: 0 HEALTH: 0", size=game_env.static.score_sprite_size, color=(103, 103, 103))  # initializing parent class with defautl text and color
         self.rect = self.surf.get_rect(topright=(game_env.static.screen_width - self.surf.get_width() / 2, 2))                              # creating rectangle from text surface
 
         self.surf = Surface((200, game_env.static.score_sprite_size), game_env.SRCALPHA, 32)
@@ -28,19 +28,23 @@ class ScoreText(Text):
 
         # updating scoreboard score and time
         score_text = self.font.render(
-            f"LEVEL {str(game_env.dynamic.game_level).zfill(2)} "
-            f"TIME {str(game_env.dynamic.game_playtime).zfill(5)} "
-            f"AMMO {str(game_env.dynamic.ammo).zfill(3)} "
-            f"SCORE {str(game_env.dynamic.game_score).zfill(8)} "
-            f"HEALTH ",
+            f"LEVEL: {str(game_env.dynamic.game_level).zfill(2)} "
+            f"TIME: {str(game_env.dynamic.game_playtime).zfill(5)} "
+            f"AMMO: {str(game_env.dynamic.ammo).zfill(3)} "
+            f"SCORE: {str(game_env.dynamic.game_score).zfill(8)} "
+            f"HEALTH: ",
             1, self.color)
 
         # creating and filling color in health bar
-        health_bar = Surface((game_env.dynamic.jet_health * 2, game_env.static.score_sprite_size - 25))
-        health_bar.fill(self.__get_color(game_env.dynamic.jet_health))
+        # health_bar = Surface((game_env.dynamic.jet_health * 2, game_env.static.score_sprite_size - 30), game_env.SRCALPHA, 32)
+        # health_bar.fill(self.__get_color(game_env.dynamic.jet_health))
+
+        health_text = self.font.render(
+            f"{str(game_env.dynamic.jet_health).zfill(3)} ",
+            1, self.__get_color(game_env.dynamic.jet_health))
 
         self.surf.blit(score_text, (0, 0))
-        self.surf.blit(health_bar, (score_text.get_width() + 2, 5))
+        self.surf.blit(health_text, (score_text.get_width() + 2, 0))
 
         self.rect = self.surf.get_rect(topleft=(10, 5))
 
@@ -51,11 +55,11 @@ class ScoreText(Text):
         """
         fill_color = (0, 0, 0)
 
-        health100 = (37, 227, 0)
-        health80 = (0, 254, 77)
-        health60 = (255, 199, 62)
-        health40 = (255, 111, 36)
-        health20 = (255, 30, 19)
+        health100 = (0, 100, 0)
+        health80 = (79, 121, 66)
+        health60 = (238, 118, 0)
+        health40 = (255, 159, 0)
+        health20 = (255, 0, 0)
 
         if 80 < health <= 100:
             fill_color = health100

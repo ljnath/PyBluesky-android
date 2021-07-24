@@ -23,10 +23,10 @@ class Star(sprite.Sprite):
         Star moves from top to bottom in blinking fashion
         """
         game_env = GameEnvironment()
-        self.rect.move_ip(0, 4)                                                                 # star moves down with speed 4
+        self.rect.move_ip(0, 5)                                                                 # star moves down with speed 5
         if self.__current_alpha < 0 or self.__current_alpha > 255:                              # reversing the tranperancy value if alpha reaches threshold
             self.__transperant = ~self.__transperant                                            # flicking effect on the star
         self.__current_alpha += self.__alpha_delta if self.__transperant else -self.__alpha_delta
         self.surf.set_alpha(self.__current_alpha)
-        if self.rect.bottom > game_env.static.screen_height:                                    # star is killed if it crosses the screens
+        if self.rect.top > game_env.static.screen_height:                                       # star is killed if it crosses the screens
             self.kill()

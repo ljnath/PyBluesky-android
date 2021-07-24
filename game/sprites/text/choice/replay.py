@@ -11,6 +11,10 @@ class ReplayChoiceText(ChoiceText):
     def __init__(self):
         ChoiceText.__init__(self, title='GAME OVER', question="DO YOU WANT TO RETRY?", choices=(Choice.YES, Choice.NO))
 
+        # considering YES as the default one
+        self.user_choice = Choice.YES
+        self.render()
+
     def check_input(self, position) -> None:
         """
         Method to handle user interaction with the Replay Menu

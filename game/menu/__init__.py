@@ -21,7 +21,7 @@ class Menu:
         self.__game_theme.selection_color = (250, 0, 0)               # dark red
 
         self.__game_theme.title_font_size = 60
-        self.__game_theme.widget_font_size = 48
+        self.__game_theme.widget_font_size = 54
 
         self.__game_theme.title_bar_style = pygame_menu.widgets.MENUBAR_STYLE_UNDERLINE
 
