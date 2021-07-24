@@ -9,6 +9,9 @@ class Cloud(sprite.Sprite):
     """ Cloud sprite class for creating and updating the cloud in the game screen
     """
     def __init__(self):
+        """
+        Constructor to create a cloud with a random cloud image
+        """
         super(Cloud, self).__init__()                                                               # initilizing parent class pygame.sprite.Sprite
         game_env = GameEnvironment()
         self.surf = image.load(random.choice(game_env.static.clouds)).convert()                     # loading cloud image
@@ -19,14 +22,20 @@ class Cloud(sprite.Sprite):
         self.rect = self.surf.get_rect(center=(pos_x, pos_y))                                       # create rectange from the cloud screen
 
         if game_env.dynamic.update_available:
-            self.update_cloud()
+            self.__create_cloud_with_info()
 
-    def update(self):
+    def update(self) -> None:
+        """
+        Method to update the cloud sprite
+        """
         self.rect.move_ip(-self.__speed, 0)                                                         # move the cloud towards left at constant speed
         if self.rect.right < 0:                                                                     # if the cloud has completly moved from the screen, the cloud is killed
             self.kill()
 
-    def update_cloud(self):                                                                         # adding 'Update avilable' text to cloud when a new version of the game is available
+    def __create_cloud_with_info(self) -> None:                                                     # adding 'Update avilable' text to cloud when a new version of the game is available
+        """
+        Method to blit 'Update Available' text in the cloud
+        """
         game_env = GameEnvironment()
         font = Font(game_env.static.game_font, 14)
         txt_update_surf = font.render(' Update', 1, game_env.static.text_default_color)

@@ -16,7 +16,7 @@ class LeaderboardMenu(Menu):
 
     def __update_menu(self):
         """
-        method to update the leaderboard menu
+        method to update the leaderboard menu with the local leader information
         """
         # clearing all widgets from the menu
         self.__leaderboard_menu.clear()
@@ -63,6 +63,9 @@ class LeaderboardMenu(Menu):
         super().add_link_to_mainmenu(self.__leaderboard_menu)
 
     @property
-    def Menu(self):
+    def Menu(self) -> pygame_menu.Menu:
+        """
+        Property to get the LeaderBoardMenu
+        """
         self.__update_menu()
         return self.__leaderboard_menu

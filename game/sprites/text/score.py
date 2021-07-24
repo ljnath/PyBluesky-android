@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from game.environment import GameEnvironment
 from game.sprites.text import Text
 from pygame import Surface
@@ -16,7 +18,11 @@ class ScoreText(Text):
         self.surf = Surface((200, game_env.static.score_sprite_size), game_env.SRCALPHA, 32)
         self.rect = self.surf.get_rect(topright=(600, 5))
 
-    def update(self):
+    def update(self) -> None:
+        """
+        Method for updating the score sprite. The score, gamelevel, time, remaining ammo and score are updated.
+        Also a health bar for the jet health is created and updated
+        """
         game_env = GameEnvironment()
         self.surf = Surface((game_env.static.screen_width, game_env.static.score_sprite_size), game_env.SRCALPHA, 32)
 
@@ -30,15 +36,19 @@ class ScoreText(Text):
             1, self.color)
 
         # creating and filling color in health bar
-        health_bar = Surface((game_env.dynamic.jet_health * 2, game_env.static.score_sprite_size - 22))
+        health_bar = Surface((game_env.dynamic.jet_health * 2, game_env.static.score_sprite_size - 25))
         health_bar.fill(self.__get_color(game_env.dynamic.jet_health))
 
         self.surf.blit(score_text, (0, 0))
-        self.surf.blit(health_bar, (score_text.get_width() + 2, 2))
+        self.surf.blit(health_bar, (score_text.get_width() + 2, 5))
 
         self.rect = self.surf.get_rect(topleft=(10, 5))
 
-    def __get_color(self, health):
+    def __get_color(self, health: int) -> Tuple[int, int, int]:
+        """
+        Method to evaluate the color of the health bar depending on the health value
+        :param health : health of the jet
+        """
         fill_color = (0, 0, 0)
 
         health100 = (37, 227, 0)

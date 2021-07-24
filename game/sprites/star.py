@@ -17,7 +17,11 @@ class Star(sprite.Sprite):
         flash_rate = 6                                                                          # setting the blink rate of the star
         self.__alpha_delta = int(255 / flash_rate)                                              # calculating the alpha delta based on the blink rate
 
-    def update(self):
+    def update(self) -> None:
+        """
+        Method to update the power-up star.
+        Star moves from top to bottom in blinking fashion
+        """
         game_env = GameEnvironment()
         self.rect.move_ip(0, 4)                                                                 # star moves down with speed 4
         if self.__current_alpha < 0 or self.__current_alpha > 255:                              # reversing the tranperancy value if alpha reaches threshold

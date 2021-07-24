@@ -30,5 +30,8 @@ class MainMenu(Menu):
         self.__home_menu.add.button('Exit', pygame_menu.events.EXIT, button_id='exit')
 
     @property
-    def Menu(self):
+    def Menu(self) -> pygame_menu.Menu:
+        """
+        Property to get the MainMenu
+        """
         return self.__home_menu

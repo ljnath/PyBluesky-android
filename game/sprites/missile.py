@@ -6,9 +6,13 @@ from pygame import image, sprite
 
 # Missile class which holds missile attributes and behaviour
 class Missile(sprite.Sprite):
-    """ Missile sprite class for creating and updating the missile in the game screen
+    """
+    Missile sprite class for creating and updating the missile in the game screen
     """
     def __init__(self):
+        """
+        Creating a missile
+        """
         super(Missile, self).__init__()                                                                                 # initilizing parent class pygame.sprite.Sprite
         game_env = GameEnvironment()
         self.surf = image.load(game_env.static.missile_activated_image).convert()                                       # loading missile image from file
@@ -24,7 +28,11 @@ class Missile(sprite.Sprite):
         boost_factor = game_env.dynamic.game_level // 10                                                                # increasing missile speed by 5% every 10th level
         self.__speed += int(self.__speed * (boost_factor * 5) / 100)
 
-    def update(self):
+    def update(self) -> None:
+        """
+        Method for updating the enemy missile position.
+        Activated missiles moves towards left and deactivated missiles moves towards bottom
+        """
         game_env = GameEnvironment()
         if not self.__activated:
             self.rect.move_ip(0, 10)                                                            # missile moves down
@@ -34,7 +42,11 @@ class Missile(sprite.Sprite):
         if self.rect.right < 0 or self.rect.bottom > game_env.static.screen_height:             # if the missile has completly moved from the screen, the missile is killed
             self.kill()
 
-    def deactivate(self):
+    def deactivate(self) -> None:
+        """
+        Method to deactivate a missile.
+        When deactivated the missile image is updated and the direction of the mission is towards bottom
+        """
         game_env = GameEnvironment()
         self.__activated = False                                                                # marking the current missile as bad
         self.surf = image.load(game_env.static.missile_deactivated_image).convert()             # updating missle image when deactivated

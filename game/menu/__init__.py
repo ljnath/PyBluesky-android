@@ -4,6 +4,10 @@ from game.environment import GameEnvironment
 
 class Menu:
     def __init__(self):
+        """
+        Constructor to create the menu.
+        The default theme pygame_menu.themes.THEME_BLUE is modified for this game
+        """
         self.__game_env = GameEnvironment()
         self.__game_theme = pygame_menu.themes.THEME_BLUE.copy()
 
@@ -26,6 +30,7 @@ class Menu:
         # setting shadow to be the same color as widget to simulate bold font
         self.__game_theme.widget_font_shadow = True
         self.__game_theme.widget_font_shadow_color = (0, 0, 250)
+
         # for more bold, increase this
         self.__game_theme.widget_font_shadow_offset = 1
 

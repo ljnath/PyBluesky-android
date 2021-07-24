@@ -26,5 +26,8 @@ class AboutMenu(Menu):
         super().add_link_to_mainmenu(self.__about_menu)
 
     @property
-    def Menu(self):
+    def Menu(self) -> pygame_menu.Menu:
+        """
+        Property to get the AboutMenu
+        """
         return self.__about_menu

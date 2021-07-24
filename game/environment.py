@@ -2,7 +2,7 @@ import random
 from typing import Tuple
 
 from pygame import image
-from pygame.locals import (  # importing here to avoid reimporting in all the sub modules
+from pygame.locals import (  # importing here to avoid reimporting in other places
     FULLSCREEN, KEYDOWN, MOUSEBUTTONDOWN, MOUSEBUTTONUP, QUIT, RLEACCEL,
     SRCALPHA, TEXTINPUT, VIDEORESIZE)
 
@@ -12,7 +12,8 @@ from game.data.static import StaticData
 
 
 class GameEnvironment(metaclass=Singleton):
-    """ Game environment which holds the game contants, variables as well as pygame constants
+    """
+    Game environment class which holds all game constants, static game values as well as dynamic game variabled
     """
     def __init__(self):
         self.__static_data = StaticData()
@@ -46,58 +47,66 @@ class GameEnvironment(metaclass=Singleton):
         """
         Method to get the width and height of a image file in px
         :param image_file: input file whose size needs to be determined
+
         :return: width and height as a tuple
         """
         image_surf = image.load(image_file)
         return (image_surf.get_width(), image_surf.get_height())
 
-    def reset(self):
+    def reset(self) -> None:
+        """
+        Method to rest the player game stats to default
+        """
         self.__dynamic_data.load_defaults()
 
     @property
-    def vegetation_size(self):
+    def vegetation_size(self) -> Tuple[int, int]:
         return self.get_image_size(self.__static_data.vegetation[0])
 
+    """
+    GAME CONSTANTS
+    """
+
     @property
-    def static(self):
+    def static(self) -> StaticData:
         return self.__static_data
 
     @property
-    def dynamic(self):
+    def dynamic(self) -> DynamicData:
         return self.__dynamic_data
 
     @property
-    def RLEACCEL(self):
+    def RLEACCEL(self) -> int:
         return RLEACCEL
 
     @property
-    def SRCALPHA(self):
+    def SRCALPHA(self) -> int:
         return SRCALPHA
 
     @property
-    def FULLSCREEN(self):
+    def FULLSCREEN(self) -> int:
         return FULLSCREEN
 
     @property
-    def QUIT(self):
+    def QUIT(self) -> int:
         return QUIT
 
     @property
-    def MOUSEBUTTONUP(self):
+    def MOUSEBUTTONUP(self) -> int:
         return MOUSEBUTTONUP
 
     @property
-    def MOUSEBUTTONDOWN(self):
+    def MOUSEBUTTONDOWN(self) -> int:
         return MOUSEBUTTONDOWN
 
     @property
-    def VIDEORESIZE(self):
+    def VIDEORESIZE(self) -> int:
         return VIDEORESIZE
 
     @property
-    def KEYDOWN(self):
+    def KEYDOWN(self) -> int:
         return KEYDOWN
 
     @property
-    def TEXTINPUT(self):
+    def TEXTINPUT(self) -> int:
         return TEXTINPUT

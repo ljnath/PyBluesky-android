@@ -1,13 +1,23 @@
 import math
+from typing import Tuple
 
 from game.environment import GameEnvironment
 from pygame import image, sprite, transform
 
 
 class Sam(sprite.Sprite):
-    """ SurfaceToAirMissile (SAM) sprite for create and moving bullet
     """
-    def __init__(self, source, target, flip):
+    SurfaceToAirMissile (SAM) sprite for create and moving bullet
+    """
+    def __init__(self, source: Tuple[int, int], target: Tuple[int, int], flip: bool):
+        """
+        Creating a SAM which aims to to the jet.
+        Intiailly the position of the jet is determned and angle is measured.
+        Next the SAM image is rotated towards the jet
+        :param source: Source position of the SAM
+        :param target: Target position where the SAM needs to aim
+        :param flip : If the SAM launcher is travelling from left2right
+        """
         super(Sam, self).__init__()
         game_env = GameEnvironment()
         self.__angle = math.atan2(target[1] - source[1], target[0] - source[0])     # sam angle of fire in radian
@@ -24,7 +34,10 @@ class Sam(sprite.Sprite):
         self.surf.set_colorkey((255, 255, 255), game_env.RLEACCEL)                  # setting the white color as the transperant area; RLEACCEL is used for better performance on non accelerated displays
         self.rect = self.surf.get_rect(center=(source[0], source[1]))               # setting the position of the bullet as the input (souce_x, y_pos)
 
-    def update(self):
+    def update(self) -> None:
+        """
+        Method to update the SAM
+        """
         game_env = GameEnvironment()
         self.rect.x += self.__speed * math.cos(self.__angle)
         self.rect.y += self.__speed * math.sin(self.__angle)

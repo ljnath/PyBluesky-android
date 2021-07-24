@@ -9,6 +9,7 @@ Menu layout
 +----------------------------------------+
 """
 import re
+from typing import Tuple
 
 from game.environment import GameEnvironment
 from game.sprites.text import Text
@@ -27,18 +28,16 @@ class NameInputText(Text):
         self.__font_size = 56
         self.__player_name = ''
         self.__user_choice = Choice.UNSELECTED
-        self.__choice_ok = Choice.OK
-        self.__choice_clear = Choice.CLEAR
 
         self.__header = Text("==== ENTER YOUR NAME ====", self.__font_size)
         self.__username = Text(self.__player_name, self.__font_size)
         self.__footer = Text("===============================", self.__font_size)
 
-        self.__ok_text = Text(f"< {self.__choice_ok.value} >", self.__font_size, self.color)
-        self.__clear_text = Text(f"< {self.__choice_clear.value} >", self.__font_size, self.color)
+        self.__ok_text = Text(f"< {Choice.OK.value} >", self.__font_size, self.color)
+        self.__clear_text = Text(f"< {Choice.CLEAR.value} >", self.__font_size, self.color)
 
-        self.__ok_text_selected = Text(f"< {self.__choice_ok.value} >", self.__font_size, self.__game_env.static.text_selection_color)
-        self.__clear_text_selected = Text(f"< {self.__choice_clear.value} >", self.__font_size, self.__game_env.static.text_selection_color)
+        self.__ok_text_selected = Text(f"< {Choice.OK.value} >", self.__font_size, self.__game_env.static.text_selection_color)
+        self.__clear_text_selected = Text(f"< {Choice.CLEAR.value} >", self.__font_size, self.__game_env.static.text_selection_color)
 
         self.__max_surface_height = self.__footer.surf.get_height()
         self.__max_surface_width = self.__footer.surf.get_width()
@@ -70,8 +69,9 @@ class NameInputText(Text):
         self.__ok_text.rect.update(pos_x, pos_y, self.__ok_text.surf.get_width(), self.__max_surface_height)
         self.__ok_text_selected.rect.update(pos_x, pos_y, self.__ok_text.surf.get_width(), self.__max_surface_height)
 
-    def __render(self):
+    def __render(self) -> None:
         self.__username = Text(self.__player_name, self.__font_size)
+
         # creating a single surface for all the text sprites, meuu layout is shown above
         # width of the surface should be same as the spirte with max width (ie the footer sprite)
         # max_surface_height * 6 because total 5 sprites + 1 seperator sprite will be included
@@ -85,15 +85,26 @@ class NameInputText(Text):
         self.surf.blit(self.__ok_text_selected.surf if self.__user_choice == Choice.OK else self.__ok_text.surf,
                        (self.__max_surface_width - self.__ok_text.surf.get_width(), self.__max_surface_height * 4))
 
-    def update(self, key):
+    def update(self, key: str) -> None:
+        """
+        Method to update the sprite.
+        Here the update is done by updating the re-rendering the player name
+        :param key: Key what user has pressed/typed
+        """
         game_env = GameEnvironment()
         if key and re.match(r'[a-zA-Z0-9@. ]', key):                                    # basic input validation; user cannot enter rubbish
             if len(self.__player_name) <= game_env.static.name_length:                  # to avoid longer name
                 self.__player_name += key
+
         # re-rendering the surface after updating the input text
         self.__render()
 
-    def check_input(self, position):
+    def check_input(self, position: Tuple[int, int]) -> None:
+        """
+        Method to check if user has touch/clicked any of the choice button.
+        Is yes the the environment variable 'user_choice' is updated with correct value
+        :param positon : Fingerdown, Fingerup, Mousedown, Mouseup interaction position
+        """
         start_keyboard = False
 
         if self.__header.rect.collidepoint(position) or self.__username.rect.collidepoint(position) or self.__footer.rect.collidepoint(position):

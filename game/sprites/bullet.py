@@ -7,7 +7,12 @@ from pygame import image, sprite
 class Bullet(sprite.Sprite):
     """ Bullet sprite for create and moving bullet
     """
-    def __init__(self, x_pos, y_pos):                                     # bullet constructur takes the position where it should be created
+    def __init__(self, x_pos: int, y_pos: int):                                     # bullet constructur takes the position where it should be created
+        """
+        Constructor to create a bullet sprite
+        :param x_pos : X position of the bullet
+        :param y_pos : Y position of the bullet
+        """
         super(Bullet, self).__init__()
         game_env = GameEnvironment()
         self.__x = x_pos
@@ -17,7 +22,10 @@ class Bullet(sprite.Sprite):
         self.surf.set_colorkey((255, 255, 255), game_env.RLEACCEL)              # setting the white color as the transperant area; RLEACCEL is used for better performance on non accelerated displays
         self.rect = self.surf.get_rect(center=(self.__x, self.__y))             # setting the position of the bullet as the input (souce_x, y_pos)
 
-    def update(self):
+    def update(self) -> None:
+        """
+        Method to update the bullet sprite
+        """
         game_env = GameEnvironment()
         dx = game_env.static.screen_width - self.rect.x
         dy = 0
