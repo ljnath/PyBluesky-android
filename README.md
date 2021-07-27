@@ -1,6 +1,6 @@
 
 # PyBluesky-android
-### Version : 1.0.1
+### Version : 1.1.0
 
 
 
@@ -20,8 +20,7 @@ Website : https://ljnath.com
 
 
 ## INTRODUCTION
-PyBluesky is a simple 2D python game developed using the pygame framework.</br>
-Based on https://realpython.com/blog/python/pygame-a-primer
+PyBluesky is a python game developed using the pygame framework.</br>
 </br></br>
 
 ## GAME MECHANICS
@@ -41,3 +40,12 @@ The game also features a network-controlled leaderboard. User scores along with 
 During the game startup, the updated scores are download from the server and displayed as leaderboard.
 </br></br>
 
+
+## CREDITS
+* Free Parallax Desert Background (Seamless) https://ko-fi.com/digitalmoons
+* Background music (Ludum Dare 30 - Track 9.wav) by Abstraction (http://www.abstractionmusic.com)
+* jet by usoygenis https://www.airfighters.com/profiles/general-dynamics-f-16-profiles
+* jet-missile https://www.pngegg.com/en/png-btjjb
+* Incoming missile https://www.pngegg.com/en/png-egbqt
+* Tank's rocket https://www.pngegg.com/en/png-wsxob
+* Tank http://www.mobilegamegraphics.com

@@ -1,10 +1,13 @@
 from json import dumps, loads
 from time import time
 
+from game import IS_ANDROID
 from game.environment import GameEnvironment
 from game.handlers import Handlers
 from game.handlers.serialize import SerializeHandler
-from jnius import autoclass
+
+if IS_ANDROID:
+    from jnius import autoclass
 
 
 class NetworkHandler(Handlers):
@@ -71,11 +74,13 @@ class NetworkHandler(Handlers):
 
         # when new score needs to be submitted as well
         if not only_sync:
+            if IS_ANDROID:
+                build = autoclass("android.os.Build")
+
             game_env = GameEnvironment()
-            build = autoclass("android.os.Build")
             payload = {
                 'apiKey': self.__api_key,
-                'name': f'{game_env.dynamic.player_name} ({build.MODEL})',
+                'name': f'{game_env.dynamic.player_name} ({build.MODEL if IS_ANDROID else ""})',    # using device model number only incase of ANDROID
                 'score': game_env.dynamic.game_score,
                 'level': game_env.dynamic.game_level,
                 'accuracy': game_env.dynamic.accuracy,

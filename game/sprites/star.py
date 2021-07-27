@@ -1,5 +1,5 @@
 from game.environment import GameEnvironment
-from pygame import image, sprite
+from pygame import sprite
 
 
 # Star class which holds star attributes and behaviour
@@ -9,7 +9,7 @@ class Star(sprite.Sprite):
     def __init__(self):
         super(Star, self).__init__()
         game_env = GameEnvironment()
-        self.surf = image.load(game_env.static.powerup_image).convert()
+        self.surf = game_env.game_assets.powerup_star
         self.surf.set_colorkey((255, 255, 255), game_env.RLEACCEL)
         self.rect = self.surf.get_rect(center=game_env.get_random_point_on_top())               # powerup stars are created on top of screen
         self.__current_alpha = 255

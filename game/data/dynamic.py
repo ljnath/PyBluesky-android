@@ -2,9 +2,10 @@
 import json
 import os
 import re
+from datetime import datetime
 
 import pygame
-from game.data.enums import Choice, Screen
+from game.data.enums import Choice, JetMovement, Screen
 from game.data.static import StaticData
 
 
@@ -14,28 +15,23 @@ class DynamicData():
     """
     def __init__(self):
         self.__static = StaticData()
+        self.__is_night = True if 19 <= datetime.now().hour <= 23 or 0 <= datetime.now().hour <= 4 else False     # 19:00 Hrs to 4:00 Hrs is considered as night
         self.__game_surface = None
         self.__main_menu = None
         self.__game_clock = None
         self.__no_ammo_sprite = None
-        self.__update_available = False
-        self.__play_background_music = True
-        self.__update_url = None
+        self.__play_background_music = False
         self.__jet_health = 100
-        self.__player_name = ''
-        self.__all_sprites = pygame.sprite.Group()
-        self.__bullets = pygame.sprite.Group()
-        self.__sam_missiles = pygame.sprite.Group()
+        self.__incoming_missiles_rate = self.__static.missile_per_sec
+        self.__player_name = 'dev'
+        self.__sprites_to_draw = pygame.sprite.Group()
+        self.__jet_missiles = pygame.sprite.Group()
+        self.__tank_rockets = pygame.sprite.Group()
         self.__user_choice = Choice.UNSELECTED
-        self.__collision_sound = pygame.mixer.Sound(self.__static.game_sound.get('collision'))
-        self.__levelup_sound = pygame.mixer.Sound(self.__static.game_sound.get('levelup'))
-        self.__shoot_sound = pygame.mixer.Sound(self.__static.game_sound.get('shoot'))
-        self.__hit_sound = pygame.mixer.Sound(self.__static.game_sound.get('hit'))
-        self.__powerup_sound = pygame.mixer.Sound(self.__static.game_sound.get('powerup'))
-        self.__samfire_sound = pygame.mixer.Sound(self.__static.game_sound.get('samfire'))
+        self.__jet_movement = JetMovement.LEFT_2_RIGHT
 
         # loading the player name from file, name can be max 20 character long
-        if os.path.exists(self.__static.player_file):
+        if os.path.exists(self.__static.config_file):
             try:
                 self.__load_config()
             except Exception:
@@ -54,15 +50,17 @@ class DynamicData():
         self.__game_level = 1
         self.__game_score = 0
         self.__game_playtime = 0
-        self.__bullet_fired = 0
-        self.__missles_destroyed = 0
-        self.__sam_missiles.empty()
+        self.__missiles_fired = 0
+        self.__missiles_destroyed = 0
+        self.__incoming_missiles_rate = self.__static.missile_per_sec
+        self.__tank_rockets.empty()
+        self.__sprites_to_draw.empty()
 
     def __load_config(self) -> None:
         """
         Method to read and load player config file into class variable
         """
-        with open(self.__static.player_file) as file_reader:
+        with open(self.__static.config_file) as file_reader:
             config = json.load(file_reader)
             self.__play_background_music = config['background_music']
             name = config['player_name'].strip()[: self.__static.name_length]
@@ -72,59 +70,43 @@ class DynamicData():
         """
         Method to same user config (player-name & music playback) option to file
         """
-        with open(self.__static.player_file, 'w') as file_handler:
+        with open(self.__static.config_file, 'w') as file_handler:
             config = {'player_name': self.__player_name,
                       'background_music': self.__play_background_music
                       }
             json.dump(config, file_handler)
 
     @property
-    def collision_sound(self) -> pygame.mixer.Sound:
-        return self.__collision_sound
+    def is_night(self) -> bool:
+        """
+        Property which checks the current time and determins if it is day or night
+        :return : True if night else False
+        """
+        return self.__is_night
 
     @property
-    def levelup_sound(self) -> pygame.mixer.Sound:
-        return self.__levelup_sound
+    def sprites_to_draw(self) -> pygame.sprite.Group:
+        return self.__sprites_to_draw
+
+    @sprites_to_draw.setter
+    def sprites_to_draw(self, value: pygame.sprite.Group) -> None:
+        self.__sprites_to_draw = value
 
     @property
-    def shoot_sound(self) -> pygame.mixer.Sound:
-        return self.__shoot_sound
+    def jet_missiles(self) -> pygame.sprite.Group:
+        return self.__jet_missiles
+
+    @jet_missiles.setter
+    def jet_missiles(self, value: pygame.sprite.Group) -> None:
+        self.__jet_missiles = value
 
     @property
-    def hit_sound(self) -> pygame.mixer.Sound:
-        return self.__hit_sound
+    def tank_rockets(self) -> pygame.sprite.Group:
+        return self.__tank_rockets
 
-    @property
-    def powerup_sound(self) -> pygame.mixer.Sound:
-        return self.__powerup_sound
-
-    @property
-    def samfire_sound(self) -> pygame.mixer.Sound:
-        return self.__samfire_sound
-
-    @property
-    def all_sprites(self) -> pygame.sprite.Group:
-        return self.__all_sprites
-
-    @all_sprites.setter
-    def all_sprites(self, value: pygame.sprite.Group) -> None:
-        self.__all_sprites = value
-
-    @property
-    def bullets(self) -> pygame.sprite.Group:
-        return self.__bullets
-
-    @bullets.setter
-    def bullets(self, value: pygame.sprite.Group) -> None:
-        self.__bullets = value
-
-    @property
-    def sam_missiles(self) -> pygame.sprite.Group:
-        return self.__sam_missiles
-
-    @sam_missiles.setter
-    def sam_missiles(self, value: pygame.sprite.Group) -> None:
-        self.__sam_missiles = value
+    @tank_rockets.setter
+    def tank_rockets(self, value: pygame.sprite.Group) -> None:
+        self.__tank_rockets = value
 
     @property
     def ammo(self) -> pygame.sprite.Group:
@@ -149,14 +131,6 @@ class DynamicData():
     @game_level.setter
     def game_level(self, value: int) -> None:
         self.__game_level = value
-
-    @property
-    def update_available(self) -> bool:
-        return self.__update_available
-
-    @update_available.setter
-    def update_available(self, value: bool) -> None:
-        self.__update_available = value
 
     @property
     def active_screen(self) -> Screen:
@@ -204,32 +178,24 @@ class DynamicData():
         self.__save_config()
 
     @property
-    def bullets_fired(self) -> int:
-        return self.__bullet_fired
+    def missiles_fired(self) -> int:
+        return self.__missiles_fired
 
-    @bullets_fired.setter
-    def bullets_fired(self, value: int) -> None:
-        self.__bullet_fired = value
+    @missiles_fired.setter
+    def missiles_fired(self, value: int) -> None:
+        self.__missiles_fired = value
 
     @property
     def missiles_destroyed(self) -> int:
-        return self.__missles_destroyed
+        return self.__missiles_destroyed
 
     @missiles_destroyed.setter
     def missiles_destroyed(self, value: int) -> None:
-        self.__missles_destroyed = value
+        self.__missiles_destroyed = value
 
     @property
     def accuracy(self) -> float:
-        return 0 if self.bullets_fired == 0 else round(self.missiles_destroyed / self.bullets_fired * 100, 3)
-
-    @property
-    def update_url(self) -> str:
-        return self.__update_url
-
-    @update_url.setter
-    def update_url(self, value: str) -> None:
-        self.__update_url = value
+        return 0 if self.missiles_fired == 0 else round(self.missiles_destroyed / self.missiles_fired * 100, 3)
 
     @property
     def game_surface(self) -> pygame.Surface:
@@ -270,3 +236,19 @@ class DynamicData():
     @jet_health.setter
     def jet_health(self, value: int) -> None:
         self.__jet_health = value
+
+    @property
+    def jet_movement(self) -> JetMovement:
+        return self.__jet_movement
+
+    @jet_movement.setter
+    def jet_movement(self, value: JetMovement) -> None:
+        self.__jet_movement = value
+
+    @property
+    def incoming_missiles_rate(self) -> int:
+        return self.__incoming_missiles_rate
+
+    @incoming_missiles_rate.setter
+    def incoming_missiles_rate(self, value: int) -> None:
+        self.__incoming_missiles_rate = value

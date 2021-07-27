@@ -27,7 +27,7 @@ class HelpMenu(Menu):
         score_table = self.__help_menu.add.table(table_id='score_table', font_size=28)
         score_table.default_cell_padding = 5
         score_table.add_row(['Destroy enemy missile   ', '10'], cell_border_width=0)
-        score_table.add_row(['Catch Power-Up star   ', '100'], cell_border_width=0)
+        score_table.add_row(['Catch Power-Up star   ', '100 x Game Level'], cell_border_width=0)
         score_table.add_row(['Level-up   ', '10'], cell_border_width=0)
         self.__help_menu.add.vertical_margin(50)
 

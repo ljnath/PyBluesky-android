@@ -11,11 +11,11 @@ Menu layout
 import re
 from typing import Tuple
 
+from game.data.enums import Choice
 from game.environment import GameEnvironment
 from game.sprites.text import Text
-from pygame.surface import Surface
 from pygame.key import start_text_input, stop_text_input
-from game.data.enums import Choice
+from pygame.surface import Surface
 
 
 class NameInputText(Text):

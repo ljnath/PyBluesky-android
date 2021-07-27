@@ -1,7 +1,6 @@
 from typing import Tuple
 
 from game.environment import GameEnvironment
-from pygame.font import Font
 from pygame.sprite import Sprite
 
 
@@ -20,7 +19,7 @@ class Text(Sprite):
         Sprite.__init__(self)                                                                   # initializing parent class
         self.__game_env = GameEnvironment()
         self.color = self.__game_env.static.text_default_color if color is None else color      # storing argument color in class variable
-        self.font = Font(self.__game_env.static.game_font, size)                                # loading font and creating class variable font with given size
+        self.font = self.__game_env.game_assets.get_font(size)                                  # loading font and creating class variable font with given size
         self.surf = self.font.render(text, 1, self.color)                                       # creating surface by rendering the text
         pos_x = self.__game_env.static.screen_width / 2 if pos_x is None else pos_x             # default position is set to center of screen
         pos_y = self.__game_env.static.screen_height / 2 if pos_y is None else pos_y            # default position is set to center of screen
