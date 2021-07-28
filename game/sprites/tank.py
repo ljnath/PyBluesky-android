@@ -21,7 +21,7 @@ class Tank(sprite.Sprite):
 
         self.__tank_move = self.__game_env.game_assets.tank_move.copy()
         self.__tank_attack = self.__game_env.game_assets.tank_attack.copy()
-
+        self.surf = self.__tank_move[0]
         self.__speed = random.randint(5, 10)
 
         # used to show tank firing animation before actually firing
@@ -42,18 +42,18 @@ class Tank(sprite.Sprite):
         if self.__is_left2right:
             self.__tank_move[:] = [transform.flip(_surf, True, False) for _surf in self.__tank_move]
             self.__tank_attack[:] = [transform.flip(_surf, True, False) for _surf in self.__tank_attack]
-            x_pos = 0
+            x_pos = 0 - self.surf.get_width() - 5
         else:
             # if tank moves from right to left, speed and threshold_distance should be -ve
             self.__speed *= -1
             self.__threshold_distance -= self.__game_env.static.screen_width
-            x_pos = self.__game_env.static.screen_width
+            x_pos = self.__game_env.static.screen_width + 5
 
         # 1st pic of the tank_move list is considered
         self.surf = self.__tank_move[self.__moving_animation_frame_index]
 
         # tank moves on the desert
-        y_pos = self.__game_env.static.screen_height - self.surf.get_height() + 150
+        y_pos = self.__game_env.static.tank_horizontal_position
         self.rect = self.surf.get_rect(center=(x_pos, y_pos))
 
     def update(self, target: Tuple[int, int]) -> None:

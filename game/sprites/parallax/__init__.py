@@ -11,8 +11,6 @@ class Parallax(sprite.Sprite):
         sprite.Sprite.__init__(self)
         self.__background_type = type
 
-        print(f'Creating {type} at position {position}')
-
         self.__game_env = GameEnvironment()
         self.surf = self.__game_env.game_assets.get_image(self.__background_type)
         self.__speed_of_cloud = 0
@@ -31,7 +29,7 @@ class Parallax(sprite.Sprite):
                                       BackgroundType.MEDIUM_CLOUD_3):
             self.__speed_of_cloud = random.randint(1, 4) * -1
             x = random.SystemRandom().randint(self.__game_env.static.screen_width + 10, self.__game_env.static.screen_width + 100)
-            y = random.SystemRandom().randint(50, 100)
+            y = random.SystemRandom().randint(50, self.__game_env.static.jet_bottom_boundry - self.surf.get_height())
 
             # should the cloud be created on left or right ? True: create on left
             if random.choice([True, False]):
@@ -40,13 +38,7 @@ class Parallax(sprite.Sprite):
                 # cloud will be created at position -580; since the cloud width is 500, so practically the cloud is -80px from left side of the screen
                 # the direction of the cloud is controlled by the speed polarity
                 x = self.__game_env.static.screen_width - x - self.surf.get_width()
-                y = random.SystemRandom().randint(50, 100)
                 self.__speed_of_cloud *= -1
-
-            # # speed of small cloud is less, randomly calculating one
-            # if self.__background_type in (BackgroundType.SMALL_CLOUD_1, BackgroundType.SMALL_CLOUD_2):
-            #     small_cloud_speed = random.randint(1, 3)
-            #     self.__speed_of_cloud = small_cloud_speed * -1 if self.__speed_of_cloud < 0 else small_cloud_speed
 
             # speed of medium cloud is high, randomly calculating one
             elif self.__background_type in (BackgroundType.MEDIUM_CLOUD_1, BackgroundType.MEDIUM_CLOUD_2, BackgroundType.MEDIUM_CLOUD_3):
@@ -64,24 +56,22 @@ class Parallax(sprite.Sprite):
         Method to update the game sprite depending on the background type
         """
         if self.__background_type in (BackgroundType.DAY, BackgroundType.NIGHT):
+            return
             # move from right to left at speed 1x
             self.rect.move_ip(-1, 0)
             if self.rect.right < 0:
-                print(f'killing {self.__background_type}')
                 self.kill()
 
         elif self.__background_type == BackgroundType.MOUNTAIN:
             # move from right to left at speed 3x
-            self.rect.move_ip(-6, 0)
+            self.rect.move_ip(-5, 0)
             if self.rect.right < 0:
-                print(f'killing {self.__background_type}')
                 self.kill()
 
         elif self.__background_type == BackgroundType.DESERT:
             # move from right to left at speed 8x
-            self.rect.move_ip(-10, 0)
+            self.rect.move_ip(-8, 0)
             if self.rect.right < 0:
-                print(f'killing {self.__background_type}')
                 self.kill()
 
         elif self.__background_type == BackgroundType.MOON:
@@ -93,7 +83,7 @@ class Parallax(sprite.Sprite):
             if self.rect.right < 0:
                 self.rect.x = 0 - self.surf.get_width()
             elif self.rect.left > self.__game_env.static.screen_width:
-                self.rect.x = self.__game_env.static.screen_width + self.surf.get_width()
+                self.rect.x = self.__game_env.static.screen_width
 
         elif self.__background_type in (BackgroundType.BIG_CLOUD_1,
                                         BackgroundType.BIG_CLOUD_2,
@@ -107,5 +97,4 @@ class Parallax(sprite.Sprite):
                                         BackgroundType.MEDIUM_CLOUD_3):
             self.rect.move_ip(self.__speed_of_cloud, 0)
             if self.__speed_of_cloud < 0 and self.rect.right < 0 or self.__speed_of_cloud > 0 and self.rect.left > self.__game_env.static.screen_width:
-                print(f'killing {self.__background_type}')
                 self.kill()

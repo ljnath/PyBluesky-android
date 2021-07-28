@@ -9,7 +9,7 @@ APK_NAME        = PyBluesky
 PACKAGE_NAME    = com.ljnath.pybluesky
 PYTHON			= python
 RELEASE_TYPE    = debug
-VERSION         = 1.0.1
+VERSION         = 1.1.0
 
 ifeq (${RELEASE_TYPE}, debug)
 	APK_FILE    = ${APK_NAME}__${ARCHITECTURE}-${RELEASE_TYPE}-${VERSION}-.apk

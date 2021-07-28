@@ -23,8 +23,8 @@ class ChoiceText(Text, ABC):
     """
     def __init__(self, title: str, question: str, choices: Tuple[Choice, Choice]):
         Text.__init__(self)
-        title_font_size = 128
-        normal_font_size = 56
+        title_font_size = 90
+        normal_font_size = 40
         space_padding = ' ' * 5
 
         self.__game_env = GameEnvironment()

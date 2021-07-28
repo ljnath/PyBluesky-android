@@ -3,8 +3,9 @@ from typing import Tuple
 
 from pygame import image
 from pygame.locals import (  # importing here to avoid reimporting in other places
-    FULLSCREEN, K_DOWN, K_LEFT, K_RIGHT, K_UP, KEYDOWN, MOUSEBUTTONDOWN,
-    MOUSEBUTTONUP, QUIT, RLEACCEL, SRCALPHA, TEXTINPUT, VIDEORESIZE)
+    FULLSCREEN, K_DOWN, K_ESCAPE, K_LEFT, K_RIGHT, K_SPACE, K_UP, KEYDOWN,
+    MOUSEBUTTONDOWN, MOUSEBUTTONUP, QUIT, RLEACCEL, SRCALPHA, TEXTINPUT,
+    VIDEORESIZE)
 
 from game.common.singleton import Singleton
 from game.data.dynamic import DynamicData
@@ -128,3 +129,11 @@ class GameEnvironment(metaclass=Singleton):
     @property
     def K_RIGHT(self) -> int:
         return K_RIGHT
+
+    @property
+    def K_SPACE(self) -> int:
+        return K_SPACE
+
+    @property
+    def K_ESCAPE(self) -> int:
+        return K_ESCAPE

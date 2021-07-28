@@ -49,3 +49,4 @@ During the game startup, the updated scores are download from the server and dis
 * Incoming missile https://www.pngegg.com/en/png-egbqt
 * Tank's rocket https://www.pngegg.com/en/png-wsxob
 * Tank http://www.mobilegamegraphics.com
+* Health heart https://gpway.itch.io/2d-hearts?download

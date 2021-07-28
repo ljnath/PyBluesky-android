@@ -33,21 +33,17 @@ class ScoreText(Text):
             f"TIME: {str(game_env.dynamic.game_playtime).zfill(5)} "
             f"AMMO: {str(game_env.dynamic.ammo).zfill(3)} "
             f"SCORE: {str(game_env.dynamic.game_score).zfill(8)} "
-            f"HEALTH: ",
+            f"HEALTH:",
             1, self.color)
 
         # # creating and filling color in health bar
         # health_bar = Surface((game_env.dynamic.jet_health * 2, game_env.static.score_sprite_size - 30), game_env.SRCALPHA, 32)
         # health_bar.fill(self.__get_color(game_env.dynamic.jet_health))
-
-        health_text = self.font.render(
-            f"{str(game_env.dynamic.jet_health).zfill(3)}",
-            1, self.__get_color(game_env.dynamic.jet_health))
-
+        
         self.surf.blit(score_text, (0, 0))
-        self.surf.blit(health_text, (score_text.get_width() + 2, 0))
+        self.surf.blit(game_env.game_assets.get_health(game_env.dynamic.jet_health), (score_text.get_width() + 5, -4))
 
-        self.rect = self.surf.get_rect(bottomleft=(5, game_env.static.screen_height + 15))
+        self.rect = self.surf.get_rect(bottomleft=(10, game_env.static.scoretext_horizontal_position))
 
     def __get_color(self, health: int) -> Tuple[int, int, int]:
         """

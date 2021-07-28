@@ -1,6 +1,7 @@
 import math
 from typing import Tuple
 
+from game import IS_ANDROID
 from game.data.enums import JetMovement, SoundType
 from game.environment import GameEnvironment
 from game.sprites.jet_missile import JetMissile
@@ -19,7 +20,7 @@ class Jet(sprite.Sprite):
         game_env = GameEnvironment()
         self.surf = game_env.game_assets.jet
         self.rect = self.surf.get_rect(center=(50, game_env.static.screen_height / 2))      # getting rectangle from jet screen; setting the jet position as the middle of the scrren on the left
-        self.__speed = 18
+        self.__speed = 18 if IS_ANDROID else 9
 
     def update(self, acceleration_values: Tuple[int, int, int]) -> None:
         """

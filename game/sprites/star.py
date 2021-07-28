@@ -14,7 +14,7 @@ class Star(sprite.Sprite):
         self.rect = self.surf.get_rect(center=game_env.get_random_point_on_top())               # powerup stars are created on top of screen
         self.__current_alpha = 255
         self.__transperant = False
-        flash_rate = 6                                                                          # setting the blink rate of the star
+        flash_rate = 12                                                                          # setting the blink rate of the star
         self.__alpha_delta = int(255 / flash_rate)                                              # calculating the alpha delta based on the blink rate
 
     def update(self) -> None:
@@ -23,7 +23,7 @@ class Star(sprite.Sprite):
         Star moves from top to bottom in blinking fashion
         """
         game_env = GameEnvironment()
-        self.rect.move_ip(0, 5)                                                                 # star moves down with speed 5
+        self.rect.move_ip(0, 2)                                                                 # star moves down with speed 5
         if self.__current_alpha < 0 or self.__current_alpha > 255:                              # reversing the tranperancy value if alpha reaches threshold
             self.__transperant = ~self.__transperant                                            # flicking effect on the star
         self.__current_alpha += self.__alpha_delta if self.__transperant else -self.__alpha_delta

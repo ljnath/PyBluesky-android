@@ -17,6 +17,18 @@ class StaticData():
         self.__http_pool_manager = urllib3.PoolManager(num_pools=2, timeout=3)
         self.__app_directory = None
 
+        mountain_vertical_space_in_percent = 60.5
+        desert_vertical_space_in_percent = 90.8
+        tank_vertical_space_in_percent = 89.8
+        jet_max_vertical_space_in_percent = 69.33
+        scoretext_vertical_space_in_percent = 100
+
+        self.__mountain_vertical_position = int(self.screen_height * mountain_vertical_space_in_percent / 100)
+        self.__desert_vertical_position = int(self.screen_height * desert_vertical_space_in_percent / 100)
+        self.__tank_vertical_position = int(self.screen_height * tank_vertical_space_in_percent / 100)
+        self.__max_jet_vertical_position = int(self.screen_height * jet_max_vertical_space_in_percent / 100)
+        self.__scoretext_vertical_position = int(self.screen_height * scoretext_vertical_space_in_percent / 100)
+
     @property
     def app_name(self) -> str:
         """
@@ -36,14 +48,14 @@ class StaticData():
         """
         Width of the game screen, fixed to 1920 so that it scales automatically when actual size is different from this
         """
-        return 1920
+        return 1280 if IS_ANDROID else 1920
 
     @property
     def screen_height(self):
         """
         Height of the game screen, fixed to 1080 so that it scales automatically when actual size is different from this
         """
-        return 1080
+        return 720  if IS_ANDROID else 1080
 
     @property
     def http_pool_manager(self) -> urllib3.PoolManager:
@@ -99,7 +111,7 @@ class StaticData():
         """
         Size of the score text sprite
         """
-        return 60
+        return int(self.screen_height * 4 / 100)
 
     @property
     def tank_activates_at(self) -> int:
@@ -114,7 +126,35 @@ class StaticData():
         Property which defines the bottom boundary of a jet.
         The same property is also used for incoming missile creation
         """
-        return self.screen_height - 330
+        return self.__max_jet_vertical_position
+
+    @property
+    def mountain_horizontal_position(self) -> int:
+        """
+        Position of mountain from top mountain will start after distance_from_top_in_percent %
+        """
+        return self.__mountain_vertical_position
+
+    @property
+    def desert_horizontal_position(self) -> int:
+        """
+        Position of desert from top
+        """
+        return self.__desert_vertical_position
+
+    @property
+    def tank_horizontal_position(self) -> int:
+        """
+        Position of tank from top
+        """
+        return self.__tank_vertical_position
+
+    @property
+    def scoretext_horizontal_position(self) -> int:
+        """
+        Position of scoretext from top
+        """
+        return self.__scoretext_vertical_position
 
     @property
     def text_default_color(self) -> Tuple[int, int, int]:

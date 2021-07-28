@@ -30,18 +30,20 @@ Website: https://ljnath.com
 """
 
 import random
+import webbrowser
 
 import pygame
 
 # importing android specific modules when executed in an android environembt
 from game import IS_ANDROID
+import game
 
 if IS_ANDROID:
     from android import loadingscreen
     from plyer import accelerometer, orientation, vibrator
 
-from game.data.enums import (BackgroundType, Choice, CloudType, GameState, PowerUpState, Screen,
-                             SoundType)
+from game.data.enums import (BackgroundType, Choice, CloudType, GameState,
+                             PowerUpState, Screen, SoundType)
 from game.environment import GameEnvironment
 from game.handlers.leaderboard import LeaderBoardHandler
 from game.handlers.network import NetworkHandler
@@ -64,6 +66,15 @@ from game.sprites.text.score import ScoreText
 API_KEY = ''
 
 
+def check_For_update() -> None:
+    """
+    Method to check for game update, if not on android
+    """
+    if IS_ANDROID:
+        return
+    NetworkHandler(API_KEY).check_for_update()
+
+
 def update_leaderboard() -> None:
     """
     Method to update game leaderbaord
@@ -81,17 +92,31 @@ def submit_result() -> None:
     LeaderBoardHandler().update(API_KEY)
 
 
+def open_update_url() -> None:
+    """
+    Method to open the webbrowser with the update url if an update is available
+    """
+    if IS_ANDROID:
+        return
+
+    game_env = GameEnvironment()
+    if game_env.dynamic.game_update_url:
+        try:
+            webbrowser.open(game_env.dynamic.update_url)
+        except Exception:
+            pass
+        
+
 def initialize() -> None:
     """
     function to initialize the game, create the game environemnt and show the game menu
     """
-    pygame.mixer.pre_init(44100, 16, 2, 4096)   # initializing same audio mixer with default settings
     pygame.mixer.init()                         # initializing same audio mixer with default settings
     pygame.init()                               # initializing pygame
     game_env = GameEnvironment()                # initializing game environment
 
     # settings flags to create screen in fullscreen, use HW-accleration and DoubleBuffer, also adding flag to resize the game
-    flags = pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE
+    flags = pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.SCALED|pygame.HWACCEL|pygame.HWSURFACE
 
     # creating game suface with custom width and height
     game_env.dynamic.game_surface = pygame.display.set_mode((game_env.static.screen_width, game_env.static.screen_height), flags)
@@ -120,11 +145,14 @@ def initialize() -> None:
         pygame.mixer.music.play(loops=-1)
     pygame.mixer.music.set_volume(.2)
 
+    # checking for game update if running on desktop
+    check_For_update()
+
     # updating game leaders
     update_leaderboard()
 
     # hiding the mouse pointer in case of ANDROID
-    pygame.mouse.set_visible(IS_ANDROID)
+    pygame.mouse.set_visible(~IS_ANDROID)
 
     # creating an instance of the main gamemenu
     game_env.dynamic.main_menu = MainMenu().Menu
@@ -222,7 +250,8 @@ def play():
     scoretext_sprite = ScoreText()                                                      # creating scoreboard sprite
     jet = Jet()                                                                         # creating jet sprite
     game_env.dynamic.no_ammo_sprite = Text("NO AMMO !!!", 40)                           # creating NO AMMO text
-    gameplay_hint_sprite = Text("Tilt your device to navigate", 40)                     # creating a gameplay hint sprite
+    hint_text = 'Tilt your device to navigate' if IS_ANDROID else 'Use keyboard arrow keys to move and spacebar to shoot'
+    gameplay_hint_sprite = Text(hint_text, 40)                     # creating a gameplay hint sprite
     game_title_sprite = Text(game_env.static.app_name, size=120, pos_x=game_env.static.screen_width / 2, pos_y=100)
 
     # game sprite groups
@@ -230,6 +259,7 @@ def play():
     tanks = pygame.sprite.GroupSingle()                                                 # SingleGroup for storing the tank
     incoming_missiles = pygame.sprite.Group()                                           # Sprite Group for storing all activated incoming missiles
     deactivated_incoming_missiles = pygame.sprite.Group()                               # Sprite Group for storing all deactivated incoming missiles
+    parallax_backgrounds = pygame.sprite.Group()                                         # Sprite Group for storing all parallax sprites and updating those in single shot
 
     backgrounds = ParallaxGroup()                                                       # ParallaxGroup for storing game backgrounds
     mountains = ParallaxGroup()                                                         # ParallaxGroup for storing game mountains
@@ -246,12 +276,6 @@ def play():
     ADD_TANK = pygame.USEREVENT + 4                                                     # creating custom event to add TANK in the screen
     pygame.time.set_timer(ADD_TANK, 5000)                                               # setting event to auto-trigger every 5s; each level can have 4 tanks because level time is 20s, (20/5=4)
 
-    ADD_BIG_CLOUD = pygame.USEREVENT + 5                                                # creating custom event to add TANK in the screen
-    pygame.time.set_timer(ADD_BIG_CLOUD, game_env.static.big_cloud_interval * 1000)     # setting event to auto-trigger every 5s; each level can have 4 tanks because level time is 20s, (20/5=4)
-
-    ADD_SMALL_CLOUD = pygame.USEREVENT + 6                                              # creating custom event to add TANK in the screen
-    pygame.time.set_timer(ADD_SMALL_CLOUD, game_env.static.small_cloud_interval * 1000)     # setting event to auto-trigger every 5s; each level can have 4 tanks because level time is 20s, (20/5=4)
-
     game_env.dynamic.main_menu.disable()
     game_env.dynamic.main_menu.full_reset()
 
@@ -260,14 +284,14 @@ def play():
                               pygame.FINGERUP,
                               pygame.FINGERDOWN,
                               pygame.MOUSEMOTION,
+                              pygame.MOUSEBUTTONUP,
                               pygame.KEYUP,
                               ADD_INCOMING_MISSILE,
-                              ADD_TANK,
-                              ADD_BIG_CLOUD,
-                              ADD_SMALL_CLOUD])
+                              ADD_TANK])
 
     # creating moon sprite; moon position is center of screen, 50px from top
     moon = Parallax(BackgroundType.MOON, (game_env.static.screen_width / 2, 50))
+    parallax_backgrounds.add(moon)
 
     def start_gameplay() -> None:
         """
@@ -277,20 +301,18 @@ def play():
 
         # allowing sprite creation event for automatic sprite creation
         pygame.event.set_allowed([ADD_INCOMING_MISSILE,
-                                  ADD_TANK,
-                                  ADD_BIG_CLOUD,
-                                  ADD_SMALL_CLOUD])
+                                  ADD_TANK])
 
         game_env.dynamic.sprites_to_draw = pygame.sprite.Group()
         game_env.reset_game_stats()                                                                                 # reseting all gameplay stats
         incoming_missiles.empty()                                                                                   # emptying group of incoming missiles
-        
+
         jet = Jet()                                                                                                 # re-creating the jet
         game_env.dynamic.jet_health = 100                                                                           # restting the jet health
         powerup_state = PowerUpState.ACTIVE
         game_state = GameState.RUNNING
         game_env.dynamic.active_screen = Screen.GAMEPLAY                                                            # setting GAMEPLAY as the active screen becuase player has started the game
-        [game_env.dynamic.sprites_to_draw.add(_sprite) for _sprite in (jet, scoretext_sprite, gameplay_hint_sprite)]  # adding sprites that needs to be displayed when the game starts
+        [game_env.dynamic.sprites_to_draw.add(_sprite) for _sprite in (scoretext_sprite, gameplay_hint_sprite)]  # adding sprites that needs to be displayed when the game starts
 
     # starting the game if palyer-name is present, else the input screen is displayed
     if game_env.dynamic.player_name:
@@ -303,10 +325,18 @@ def play():
     # enabling acclerometer sensor in case of ANDOIRD to get acclerometer sensor data for jet navigation
     if IS_ANDROID:
         accelerometer.enable()
-        
+
     print(pygame.display.Info())
-    print(game_env.dynamic.game_surface)
-    print(pygame.display.get_driver() )
+    print(f'Current surface: {game_env.dynamic.game_surface}')
+    print(f'Active surface: {pygame.display.get_surface()}')
+    print(f'No. of display: {pygame.display.get_num_displays()}')
+    print(f'Allow screensaver: {pygame.display.get_allow_screensaver()}')
+    print(f'Driver: {pygame.display.get_driver()}')
+    print(f'WM info: {pygame.display.get_wm_info()}')
+    print(f'Supported modes: {pygame.display.list_modes()}')
+    print(f'Mode: {pygame.display.mode_ok((game_env.static.screen_width, game_env.static.screen_height))}')
+    
+
     # --------------------
     # MAIN GAME LOOP
     # --------------------
@@ -321,21 +351,28 @@ def play():
         # background is automatically switched between Day and Night based on system time
         # x-position is at the end of the last sprite - 15px (this is done to present screen tearing), y-position is fixed at 0
         while len(backgrounds) < 2:
-            backgrounds.add(Parallax(BackgroundType.NIGHT if game_env.dynamic.is_night else BackgroundType.DAY, (len(backgrounds) * game_env.static.screen_width - 15, 0)))
+            _background = Parallax(BackgroundType.NIGHT if game_env.dynamic.is_night else BackgroundType.DAY, (len(backgrounds) * game_env.static.screen_width - 15, 0))
+            backgrounds.add(_background)
+            parallax_backgrounds.add(_background)
 
         while len(mountains) < 2:
-            mountains.add(Parallax(BackgroundType.MOUNTAIN, (len(mountains) * game_env.static.screen_width - 15, 650)))
+            _mountain = Parallax(BackgroundType.MOUNTAIN, (len(mountains) * game_env.static.screen_width - 15, game_env.static.mountain_horizontal_position))
+            mountains.add(_mountain)
+            parallax_backgrounds.add(_mountain)
 
         while len(deserts) < 2:
-            deserts.add(Parallax(BackgroundType.DESERT, (len(deserts) * game_env.static.screen_width - 15, 980)))
+            _desert = Parallax(BackgroundType.DESERT, (len(deserts) * game_env.static.screen_width - 15, game_env.static.desert_horizontal_position))
+            deserts.add(_desert)
+            parallax_backgrounds.add(_desert)
 
         # --------------------------------------------------------
         # ALL GAME EVENT HANDLING
         # --------------------------------------------------------
-
+        # explicit events pumping
+        pygame.event.pump()
+        
         # Look at every events in the pygame.event queue
         for event in pygame.event.get():
-            print(f'fresh event: {event}')
             # checking for VIDEORESIZE event only incase of ANDROID, this event is used to prevent auto-rotate in android device
             # if any change in the screensize is detected, then the orienatation is forcefully re-applied
             if IS_ANDROID and event.type == game_env.VIDEORESIZE:
@@ -343,7 +380,6 @@ def play():
 
             # mouse based interaction to simulate finger based interaction
             elif event.type == game_env.MOUSEBUTTONDOWN:
-                print(f'event.type = {event}')
                 # handling single finger only for now
                 if event.button == 1:
                     # jet can shoot at use touch and when the game is running
@@ -361,16 +397,18 @@ def play():
                     elif game_state in (GameState.PAUSED, GameState.GAMEOVER) and game_env.dynamic.active_screen in (Screen.PAUSE_MENU, Screen.REPLAY_MENU):
                         dynamic_sprite.check_input(event.pos)
 
-
             # handling keydown event to show the pause menu
             elif event.type == game_env.KEYDOWN:
-                if game_env.dynamic.active_screen == Screen.GAMEPLAY and pygame.key.name(event.key) == 'AC Back':
-                    pygame.mixer.music.pause()
-                    game_state = GameState.PAUSED
-                    dynamic_sprite = PauseChoiceText()
-                    game_env.dynamic.sprites_to_draw.add(dynamic_sprite)
-                    game_env.dynamic.active_screen = Screen.PAUSE_MENU
-                    game_env.dynamic.user_choice = Choice.UNSELECTED
+                if game_env.dynamic.active_screen == Screen.GAMEPLAY:
+                    if (IS_ANDROID and pygame.key.name(event.key) == 'AC Back') or (not IS_ANDROID and event.key == game_env.K_ESCAPE):
+                        pygame.mixer.music.pause()
+                        game_state = GameState.PAUSED
+                        dynamic_sprite = PauseChoiceText()
+                        game_env.dynamic.sprites_to_draw.add(dynamic_sprite)
+                        game_env.dynamic.active_screen = Screen.PAUSE_MENU
+                        game_env.dynamic.user_choice = Choice.UNSELECTED
+                    elif not IS_ANDROID and event.key == game_env.K_SPACE:
+                        jet.shoot()
 
             # handling the textinput event to allow user to type
             elif event.type == game_env.TEXTINPUT and game_env.dynamic.active_screen == Screen.NAME_INPUT:
@@ -415,20 +453,17 @@ def play():
                     incoming_missiles.add(_incoming_missile)
                     game_env.dynamic.sprites_to_draw.add(_incoming_missile)
 
+                # clouds are create every 7s with max 3 clouds in the group which means 3 clouds can be in the gamescreen
+                if game_env.dynamic.game_playtime % 7 == 0 and len(clouds) < 4:
+                    _cloud = CloudParallax(CloudType.BIG if random.choice([True, False]) else CloudType.SMALL)
+                    clouds.add(_cloud)
+                    parallax_backgrounds.add(_cloud)
+
             # adding tank when user has crossed level 5 and if there are no tanks in the game screen
             # skipped when game is paused
             elif event.type == ADD_TANK and not tanks and game_env.dynamic.game_level >= game_env.static.tank_activates_at and game_state == GameState.RUNNING:
                 _tank = Tank()
                 tanks.add(_tank)
-                game_env.dynamic.sprites_to_draw.add(_tank)
-
-            # adding big clouds to the screen after the game has started
-            elif event.type == ADD_BIG_CLOUD:                                          # is event to add missile is triggered; missles are not added during game_over
-                clouds.add(CloudParallax(CloudType.BIG))
-
-            # adding small clouds to the screen after the game has started
-            elif event.type == ADD_SMALL_CLOUD:                                         # is event to add missile is triggered; missles are not added during game_over
-                clouds.add(CloudParallax(CloudType.SMALL))
 
         # --------------------------------------------------------
         # ALL TEXT-BASED MENU BUTTON INTERACTIONS
@@ -446,9 +481,9 @@ def play():
         elif game_env.dynamic.active_screen == Screen.PAUSE_MENU:
             if game_env.dynamic.user_choice == Choice.YES:
                 pygame.mixer.music.unpause()
-                game_started, game_pause = game_pause, game_started
                 game_env.dynamic.sprites_to_draw.remove(dynamic_sprite)
                 game_env.dynamic.active_screen = Screen.GAMEPLAY
+                game_state = GameState.RUNNING
             elif game_env.dynamic.user_choice == Choice.NO:
                 running = False
 
@@ -467,25 +502,23 @@ def play():
             # incoming missile or tank-rocket hit
             # when hit the jet health is reduced by 20%; all the incoming missiles and tank rocket is cleared from screen and jet is respawned on left
             if pygame.sprite.spritecollideany(jet, incoming_missiles) or pygame.sprite.spritecollideany(jet, game_env.dynamic.tank_rockets):
+                jet.kill()
                 [_sprite.kill() for _sprite in incoming_missiles.sprites()]
                 [_sprite.kill() for _sprite in game_env.dynamic.tank_rockets.sprites()]
                 incoming_missiles.empty()
                 game_env.dynamic.tank_rockets.empty()
-
-                # respawning jet on the left side of the screen
-                jet.rect.x = 10
-                jet.rect.y = game_env.static.screen_height / 2
                 game_env.dynamic.jet_health -= 20
                 game_env.game_assets.get_sound(SoundType.MISSILE_COLLISION).play()
 
                 if game_env.dynamic.jet_health > 0:
+                    # respawning jet
+                    jet = Jet()
                     if IS_ANDROID:
                         # if health is present, small vibration is made
                         vibrator.vibrate(0.1)
                 else:
                     # if no health then game over
                     game_state = GameState.GAMEOVER                                                                 # setting game_over to true to prevent new missiles from spawning
-                    jet.kill()                                                                                      # killing the jet
 
                     if IS_ANDROID:
                         vibrator.vibrate(1)                                                                         # vibrating ANDROID device for 1s on game-over
@@ -531,22 +564,11 @@ def play():
                     jet.update_on_keypress(pygame.key.get_pressed())
 
             # backgroud surfaces are updated even when game is paused
-            backgrounds.update()                                                                            # updating game background
-            mountains.update()                                                                              # updating mountains
-            deserts.update()                                                                                # updating deserts
-            moon.update()                                                                                   # updating moons
-            clouds.update()                                                                                 # updating the position of the clouds
+            parallax_backgrounds.update()
+            game_env.dynamic.sprites_to_draw.update()
 
-            incoming_missiles.update()                                                                      # updating the position of the enemy missiles
-            deactivated_incoming_missiles.update()                                                          # updating the position of the deactivated enemy missiles
-            scoretext_sprite.update()                                                                       # updating the game scoretext sprite which includes gameplay time, score, etc.
-            game_env.dynamic.jet_missiles.update()                                                          # updating the position of bullets
-            game_env.dynamic.tank_rockets.update()                                                          # updating the position of missiles launched by sam-launcher
-
-            if stars:
-                stars.update()                                                                              # updating the position of the stars
-            if tanks:
-                tanks.update((jet.rect.x + jet.rect.width / 2, jet.rect.y + jet.rect.height))               # updating the tank with the target position of the JET
+            stars.update()                                                                              # updating the position of the stars
+            tanks.update((jet.rect.x + jet.rect.width / 2, jet.rect.y + jet.rect.height))               # updating the tank with the target position of the JET
 
         # --------------------------------------------------------
         # SCREEN BLITING AND UPDATING
@@ -564,6 +586,11 @@ def play():
         # bliting all surfaces in sprites_to_draw Group
         # this has the active text-based sprite; jet, incoming-missiles, jet-missiles and all similar game items
         [game_env.dynamic.game_surface.blit(_sprite.surf, _sprite.rect) for _sprite in game_env.dynamic.sprites_to_draw]
+        [game_env.dynamic.game_surface.blit(_sprite.surf, _sprite.rect) for _sprite in tanks]
+
+        # jet is be shown only when the game is not over yet
+        if game_state != GameState.GAMEOVER:
+            game_env.dynamic.game_surface.blit(jet.surf, jet.rect)
 
         pygame.display.update()                                                                               # updating display to the screen
         game_env.dynamic.game_clock.tick(game_env.static.fps)                                               # to maintain constant FPS of the game
@@ -571,6 +598,7 @@ def play():
     pygame.mixer.music.stop()                                                                               # stopping game music
     pygame.mixer.quit()                                                                                     # stopping game sound mixer
     pygame.quit()                                                                                           # stopping pygame
+    open_update_url()
     exit()
 
 

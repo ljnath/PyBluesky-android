@@ -21,6 +21,7 @@ class DynamicData():
         self.__game_clock = None
         self.__no_ammo_sprite = None
         self.__play_background_music = False
+        self.__game_update_url = None
         self.__jet_health = 100
         self.__incoming_missiles_rate = self.__static.missile_per_sec
         self.__player_name = 'dev'
@@ -252,3 +253,11 @@ class DynamicData():
     @incoming_missiles_rate.setter
     def incoming_missiles_rate(self, value: int) -> None:
         self.__incoming_missiles_rate = value
+
+    @property
+    def game_update_url(self):
+        return self.__game_update_url
+
+    @game_update_url.setter
+    def game_update_url(self, value):
+        self.__game_update_url = value

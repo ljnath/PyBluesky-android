@@ -18,7 +18,7 @@ class NetworkHandler(Handlers):
         self.__api_endpoint = 'https://app.ljnath.com/pybluesky/'
         self.__serialize_handler = SerializeHandler(game_env.static.offline_score_file)
 
-    def check_game_update(self):
+    def check_for_update(self):
         """
         method to check for new game update
         """
@@ -26,15 +26,13 @@ class NetworkHandler(Handlers):
             game_env = GameEnvironment()
             get_parameters = {
                 'action': 'getUpdate',
-                'apiKey': self.__api_key,
-                'platform': 'android'
+                'apiKey': self.__api_key
             }
             response = game_env.static.http_pool_manager.request('GET', self.__api_endpoint, fields=get_parameters)
             if response.status == 200:
                 json_response = loads(response.data)
-                if json_response['version'] != game_env.static.version:
-                    game_env.dynamic.update_available = True
-                    game_env.dynamic.update_url = json_response['url']
+                if json_response['version'] != game_env.static.app_version:
+                    game_env.dynamic.game_update_url = json_response['url']
                     self.log(f'New game version {json_response["version"]} detected')
         except Exception:
             self.log('Failed to check for game update')
@@ -49,9 +47,13 @@ class NetworkHandler(Handlers):
             game_env = GameEnvironment()
             get_parameters = {
                 'action': 'getTopScores',
-                'apiKey': self.__api_key,
-                'platform': 'android'
+                'apiKey': self.__api_key
             }
+
+            # updating request in case of android
+            if IS_ANDROID:
+                get_parameters['platform'] = 'android'
+
             response = game_env.static.http_pool_manager.request('GET', self.__api_endpoint, fields=get_parameters)
             if response.status == 200:
                 leaders = loads(response.data)
@@ -74,19 +76,23 @@ class NetworkHandler(Handlers):
 
         # when new score needs to be submitted as well
         if not only_sync:
-            if IS_ANDROID:
-                build = autoclass("android.os.Build")
-
+            
             game_env = GameEnvironment()
             payload = {
                 'apiKey': self.__api_key,
-                'name': f'{game_env.dynamic.player_name} ({build.MODEL if IS_ANDROID else ""})',    # using device model number only incase of ANDROID
+                'name': game_env.dynamic.player_name,
                 'score': game_env.dynamic.game_score,
                 'level': game_env.dynamic.game_level,
                 'accuracy': game_env.dynamic.accuracy,
-                'platform': 'android',
                 "epoch": int(time())
             }
+
+            # updating request in case of android
+            if IS_ANDROID:
+                build = autoclass("android.os.Build")
+                payload['platform'] = 'android'
+                payload['name'] = f'{game_env.dynamic.player_name} ({build.MODEL})'
+
             payloads.append(payload)
 
         unsubmitted_scores = []

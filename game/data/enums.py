@@ -50,7 +50,8 @@ class GameState(Enum):
     RUNNING = 1
     PAUSED = 2
     GAMEOVER = 3
-    
+
+
 class JetMovement(Enum):
     """
     All jet movement enumerator
